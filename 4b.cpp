@@ -65,19 +65,17 @@ int Table::load_from_file() {
             return 0;
         }
         pk1[size-1].a = new Item;
-        int key1 = pk1[size-1].a->key1, key2 = pk1[size-1].a->key2, len = pk1[size-1].a->len;
-        int ind1 = pk1[size-1].a->ind1, ind2 = pk1[size-1].a->ind2;
-        f.read((char*)&key1, sizeof(int));
-        f.read((char*)&key2, sizeof(int));
-        f.read((char*)&len, sizeof(int));
-        int strSize = len;
+        f.read((char*)&pk1[size-1].a->key1, sizeof(int));
+        f.read((char*)&pk1[size-1].a->key2, sizeof(int));
+        f.read((char*)&pk1[size-1].a->len, sizeof(int));
+        int strSize = pk1[size-1].a->len;
         char *buffer = new char[strSize + 1];
         f.read(buffer, strSize);
         buffer[strSize] = 0;
         pk1[size-1].a->str = buffer;
         delete[] buffer;
-        f.read((char*)&ind1, sizeof(int));
-        f.read((char*)&ind2, sizeof(int));
+        f.read((char*)&pk1[size-1].a->ind1, sizeof(int));
+        f.read((char*)&pk1[size-1].a->ind2, sizeof(int));
         size++;
     }
     f.close();
