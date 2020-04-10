@@ -57,7 +57,7 @@ int Table::load_from_file() {
     cin >> filename;
     ifstream f(filename, ios::in | ios::binary);
     if (!f.is_open())
-        cout << "Невозможно открыть файл";
+        cout << "Невозможно открыть файл!\n";
     while(!f.eof()) {
         if (size == M) {
             size = 0;
