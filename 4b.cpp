@@ -16,7 +16,7 @@ struct Item {
 };
 #pragma pack (pop)
 
-int size = 1;
+int size = 0;
 const int M = 31;
 const int h = 3;
 
@@ -58,6 +58,7 @@ int Table::load_from_file() {
     ifstream f(filename, ios::in | ios::binary);
     if (!f.is_open())
         cout << "Невозможно открыть файл!\n";
+    int ind = 0;
     while(!f.eof()) {
         if (size == M) {
             size = 0;
@@ -65,17 +66,17 @@ int Table::load_from_file() {
             return 0;
         }
         pk1[size-1].a = new Item;
-        f.read((char*)&pk1[size-1].a->key1, sizeof(int));
-        f.read((char*)&pk1[size-1].a->key2, sizeof(int));
-        f.read((char*)&pk1[size-1].a->len, sizeof(int));
-        int strSize = pk1[size-1].a->len;
+        f.read((char*)&pk1[ind-1].a->key1, sizeof(int));
+        f.read((char*)&pk1[ind-1].a->key2, sizeof(int));
+        f.read((char*)&pk1[ind-1].a->len, sizeof(int));
+        int strSize = pk1[ind-1].a->len;
         char *buffer = new char[strSize + 1];
         f.read(buffer, strSize);
         buffer[strSize] = 0;
-        pk1[size-1].a->str = buffer;
+        pk1[ind-1].a->str = buffer;
         delete[] buffer;
-        f.read((char*)&pk1[size-1].a->ind1, sizeof(int));
-        f.read((char*)&pk1[size-1].a->ind2, sizeof(int));
+        f.read((char*)&pk1[ind-1].a->ind1, sizeof(int));
+        f.read((char*)&pk1[ind-1].a->ind2, sizeof(int));
         size++;
     }
     f.close();
