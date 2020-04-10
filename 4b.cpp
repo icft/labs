@@ -65,7 +65,7 @@ int Table::load_from_file() {
             f.close();
             return 0;
         }
-        pk1[size-1].a = new Item;
+        pk1[ind].a = new Item;
         f.read((char*)&pk1[ind].a->key1, sizeof(int));
         f.read((char*)&pk1[ind].a->key2, sizeof(int));
         f.read((char*)&pk1[ind].a->len, sizeof(int));
