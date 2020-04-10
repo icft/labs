@@ -66,18 +66,19 @@ int Table::load_from_file() {
             return 0;
         }
         pk1[size-1].a = new Item;
-        f.read((char*)&pk1[ind-1].a->key1, sizeof(int));
-        f.read((char*)&pk1[ind-1].a->key2, sizeof(int));
-        f.read((char*)&pk1[ind-1].a->len, sizeof(int));
-        int strSize = pk1[ind-1].a->len;
+        f.read((char*)&pk1[ind].a->key1, sizeof(int));
+        f.read((char*)&pk1[ind].a->key2, sizeof(int));
+        f.read((char*)&pk1[ind].a->len, sizeof(int));
+        int strSize = pk1[ind].a->len;
         char *buffer = new char[strSize + 1];
         f.read(buffer, strSize);
         buffer[strSize] = 0;
-        pk1[ind-1].a->str = buffer;
+        pk1[ind].a->str = buffer;
         delete[] buffer;
-        f.read((char*)&pk1[ind-1].a->ind1, sizeof(int));
-        f.read((char*)&pk1[ind-1].a->ind2, sizeof(int));
+        f.read((char*)&pk1[ind].a->ind1, sizeof(int));
+        f.read((char*)&pk1[ind].a->ind2, sizeof(int));
         size++;
+        ind++;
     }
     f.close();
     return 1;
