@@ -243,6 +243,14 @@ void Menu_text() {
     cout << "7. Выход\n";
 }
 
+void load_from_file(Table *tbl){
+    int k = tbl->load_from_file();
+    if (k == 0)
+        cout << "Файл больше допустимого размера!\n";
+    if (k == 1)
+        cout << "Таблица успешно загружена.\n";
+}
+
 void add_menu(Table *tbl) {
     int key1, key2;
     string s;
@@ -282,7 +290,7 @@ int main(){
         cin >> c;
         switch (c) {
             case 1:
-                tbl->load_from_file();
+                load_from_file(tbl);
                 break;
             case 2:
                 add_menu(tbl);
