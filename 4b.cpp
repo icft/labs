@@ -36,10 +36,10 @@ private:
 public:
     ~Table();
     int load_from_file();
-    void add(int k1, int k2, const string& s);
+    void add(int k1, int k2, const string& s, int flag);
     void del(int k, int number);
     void find(int k, int number);
-    int hash(int k);
+    static int hash(int k);
     void show();
     void upload_to_file();
 };
@@ -56,65 +56,70 @@ int Table::load_from_file() {
     string filename;
     cin >> filename;
     ifstream f(filename, ios::in | ios::binary);
-    if (!f.is_open())
+    if (!f.is_open()) {
         cout << "Невозможно открыть файл!\n";
-    int ind = 0;
-    while(!f.eof()) {
-        if (size == M) {
-            size = 0;
-            f.close();
-            return 0;
-        }
-        pk1[ind].a = new Item;
-        f.read((char*)&pk1[ind].a->key1, sizeof(int));
-        f.read((char*)&pk1[ind].a->key2, sizeof(int));
-        f.read((char*)&pk1[ind].a->len, sizeof(int));
-        int strSize = pk1[ind].a->len;
-        char *buffer = new char[strSize + 1];
-        f.read(buffer, strSize);
-        buffer[strSize] = 0;
-        pk1[ind].a->str = buffer;
-        delete[] buffer;
-        f.read((char*)&pk1[ind].a->ind1, sizeof(int));
-        f.read((char*)&pk1[ind].a->ind2, sizeof(int));
-        size++;
-        ind++;
     }
-    f.close();
-    return 1;
+    else {
+        while (true) {
+            if (size == M) {
+                size = 0;
+                f.close();
+                return 0;
+            }
+            int c;
+            int k1 = 0, k2 = 0, l = 0, i1 = 0, i2 = 0;
+            f.read((char *)&k1, sizeof(int));
+            if (f.eof()) {
+                break;
+            }
+            f.read((char *)&k2, sizeof(int));
+            f.read((char *)&l, sizeof(int));
+            char *buffer = new char[l + 1];
+            f.read(buffer, l);
+            buffer[l] = 0;
+            f.read((char *)&i1, sizeof(int));
+            f.read((char *)&i2, sizeof(int));
+            add(k1, k2, buffer, 0);
+            delete[] buffer;
+        }
+        f.close();
+        return 1;
+    }
 }
 
 
-void Table::add(int k1, int k2, const string& s) {
-    int pos, i1, i2, c = 0;
+void Table::add(int k1, int k2, const string& s, int flag) {
+    int pos, i1, i2, c = 0, fg = 1;
     pos = i1 = hash(k1);
-    while(pk1[i1].busy > 0)
-    {
+    while (pk1[i1].busy > 0) {
         if (size == M) {
             break;
         }
-        if(pk1[i1].a->key1 == k1 and pk1[i1].a->key2 == k2) {
+        if (pk1[i1].a->key1 == k1 and pk1[i1].a->key2 == k2) {
             c = -1;
             break;
         }
-        i1 = (i1+h) % M;
-        if(i1 == pos) {
+        i1 = (i1 + h) % M;
+        if (i1 == pos) {
             c = -2;
             break;
         }
     }
-    if (c == -1)
+    if ((c == -1) & (flag == 1))
         cout << "В таблице уже есть элемент с такими ключами!\n";
+    else if ((c == -1) & (flag == 0))
+        fg = 0;
     else if (c == -2)
         cout << "В таблице нет места!\n";
-    else {
+    else if (fg) {
         pos = i2 = hash(k2);
-        while(pk2[i2].busy > 0) {
-            i2 = (i2+h) % M;
+        while (pk2[i2].busy > 0) {
+            i2 = (i2 + h) % M;
         }
         pk1[i1].a = new Item;
         pk1[i1].a->key1 = k1;
         pk1[i1].a->key2 = k2;
+        pk1[i1].a->len = s.length();
         pk1[i1].a->str = s;
         pk1[i1].a->ind1 = i1;
         pk1[i1].a->ind2 = i2;
@@ -141,7 +146,7 @@ void Table::del(int k, int number) {
                 break;
         }
         if (c == 0)
-            cout << "Нет элемента с таким ключом!";
+            cout << "Нет элемента с таким ключом!\n";
     }
     if (number == 2) {
         while(true) {
@@ -157,7 +162,7 @@ void Table::del(int k, int number) {
                 break;
         }
         if (c == 0)
-            cout << "Нет элемента с таким ключом!";
+            cout << "Нет элемента с таким ключом!\n";
     }
 }
 
@@ -216,25 +221,27 @@ void Table::upload_to_file() {
     cout << "Введите имя файла: ";
     string filename;
     cin >> filename;
-    ofstream f(filename, ios::in | ios::binary);
+    ofstream f(filename, ios::binary);
     if (!f.is_open())
-        cout << "Невозможно открыть файл";
-    while(!f.eof()) {
-        int key1 = pk1[size-1].a->key1, key2 = pk1[size-1].a->key2, len = pk1[size-1].a->len;
-        int ind1 = pk1[size-1].a->ind1, ind2 = pk1[size-1].a->ind2;
-        f.write((char*)&key1, sizeof(int));
-        f.write((char*)&key2, sizeof(int));
-        f.write((char*)&len, sizeof(int));
-        const char *str = pk1[size-1].a->str.c_str();
-        f.write(str, len);
-        f.write((char*)&ind1, sizeof(int));
-        f.write((char*)&ind2, sizeof(int));
+        cout << "Невозможно открыть файл!\n";
+    else {
+        for(auto & i : pk1) {
+            if (i.busy == 1) {
+                f.write((char *) &i.a->key1, sizeof(int));
+                f.write((char *) &i.a->key2, sizeof(int));
+                f.write((char *) &i.a->len, sizeof(int));
+                f.write(i.a->str.c_str(), i.a->len);
+                f.write((char *) &i.a->ind1, sizeof(int));
+                f.write((char *) &i.a->ind2, sizeof(int));
+            }
+        }
+        f.close();
+        cout << "Файл записан!\n";
     }
-    f.close();
 }
 
 void Menu_text() {
-    cout << "1. Загрузить таблицу в память\n";
+    cout << "1. Загрузить таблицу из существующего файла память\n";
     cout << "2. Добавить элемент\n";
     cout << "3. Поиск элемента\n";
     cout << "4. Удалить элемент\n";
@@ -248,7 +255,7 @@ void load_from_file(Table *tbl){
     if (k == 0)
         cout << "Файл больше допустимого размера!\n";
     if (k == 1)
-        cout << "Таблица успешно загружена.\n";
+        cout << "Таблица успешно загружена.\nРазмер таблицы: " << size << "\n";
 }
 
 void add_menu(Table *tbl) {
@@ -256,7 +263,7 @@ void add_menu(Table *tbl) {
     string s;
     cout << "Введите ключи и информацию: ";
     cin >> key1 >> key2 >> s;
-    tbl->add(key1, key2, s);
+    tbl->add(key1, key2, s, 0);
 }
 
 void find_menu(Table *tbl) {
@@ -274,7 +281,7 @@ void del_menu(Table *tbl) {
     cin >> number;
     cout << "Введите ключ: ";
     cin >> k;
-    tbl->del(k, number);
+    tbl->del(k, number);;
 }
 
 void show_menu(Table *tbl) {
@@ -282,7 +289,7 @@ void show_menu(Table *tbl) {
 }
 
 int main(){
-    Table *tbl = new Table();
+    auto *tbl = new Table();
     int c = 3;
     Menu_text();
     while(c != 7) {
