@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <cstring>
 
 using namespace std;
 
@@ -57,7 +56,7 @@ int Table::load_from_file() {
     cin >> filename;
     ifstream f(filename, ios::in | ios::binary);
     if (!f.is_open()) {
-        cout << "Невозможно открыть файл!\n";
+        cout << "Невозможно открыть файл\n";
     }
     else {
         while (true) {
@@ -92,9 +91,6 @@ void Table::add(int k1, int k2, const string& s, int flag) {
     int pos, i1, i2, c = 0, fg = 1;
     pos = i1 = hash(k1);
     while (pk1[i1].busy > 0) {
-        if (size == M) {
-            break;
-        }
         if (pk1[i1].a->key1 == k1 and pk1[i1].a->key2 == k2) {
             c = -1;
             break;
@@ -106,11 +102,11 @@ void Table::add(int k1, int k2, const string& s, int flag) {
         }
     }
     if ((c == -1) & (flag == 1))
-        cout << "В таблице уже есть элемент с такими ключами!\n";
+        cout << "В таблице уже есть элемент с такими ключами\n";
     else if ((c == -1) & (flag == 0))
         fg = 0;
     else if (c == -2)
-        cout << "В таблице нет места!\n";
+        cout << "В таблице нет места\n";
     else if (fg) {
         pos = i2 = hash(k2);
         while (pk2[i2].busy > 0) {
@@ -214,7 +210,7 @@ void Table::show() {
         }
     }
     if (c == 0)
-        cout << "Таблица пустая!\n";
+        cout << "Таблица пустая\n";
 }
 
 void Table::upload_to_file() {
@@ -223,7 +219,7 @@ void Table::upload_to_file() {
     cin >> filename;
     ofstream f(filename, ios::binary);
     if (!f.is_open())
-        cout << "Невозможно открыть файл!\n";
+        cout << "Невозможно открыть файл\n";
     else {
         for(auto & i : pk1) {
             if (i.busy == 1) {
@@ -242,20 +238,25 @@ void Table::upload_to_file() {
 
 void Menu_text() {
     cout << "1. Загрузить таблицу из существующего файла память\n";
-    cout << "2. Добавить элемент\n";
-    cout << "3. Поиск элемента\n";
+    cout << "2. Вывести размер таблицы\n";
+    cout << "3. Добавить элемент\n";
+    cout << "4. Поиск элемента\n";
     cout << "4. Удалить элемент\n";
-    cout << "5. Вывести таблицу\n";
-    cout << "6. Загрузить таблицу в файл\n";
-    cout << "7. Выход\n";
+    cout << "6. Вывести таблицу\n";
+    cout << "7. Загрузить таблицу в файл\n";
+    cout << "8. Выход\n";
 }
 
 void load_from_file(Table *tbl){
     int k = tbl->load_from_file();
     if (k == 0)
-        cout << "Файл больше допустимого размера!\n";
+        cout << "Файл больше допустимого размера\n";
     if (k == 1)
-        cout << "Таблица успешно загружена.\nРазмер таблицы: " << size << "\n";
+        cout << "Таблица успешно загружена.\n";
+}
+
+void size_table() {
+    cout << "Размер таблицы: " << size << "\n";
 }
 
 void add_menu(Table *tbl) {
@@ -292,7 +293,7 @@ int main(){
     auto *tbl = new Table();
     int c = 3;
     Menu_text();
-    while(c != 7) {
+    while(c != 8) {
         cout << "Выберите команду: ";
         cin >> c;
         switch (c) {
@@ -300,18 +301,21 @@ int main(){
                 load_from_file(tbl);
                 break;
             case 2:
-                add_menu(tbl);
+                size_table();
                 break;
             case 3:
-                find_menu(tbl);
+                add_menu(tbl);
                 break;
             case 4:
-                del_menu(tbl);
+                find_menu(tbl);
                 break;
             case 5:
-                show_menu(tbl);
+                del_menu(tbl);
                 break;
             case 6:
+                show_menu(tbl);
+                break;
+            case 7:
                 tbl->upload_to_file();
                 break;
         }
