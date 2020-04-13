@@ -76,8 +76,6 @@ int Table::load_from_file() {
             char *buffer = new char[l + 1];
             f.read(buffer, l);
             buffer[l] = 0;
-            f.read((char *)&i1, sizeof(int));
-            f.read((char *)&i2, sizeof(int));
             add(k1, k2, buffer, 0);
             delete[] buffer;
         }
@@ -227,13 +225,28 @@ void Table::upload_to_file() {
                 f.write((char *) &i.a->key2, sizeof(int));
                 f.write((char *) &i.a->len, sizeof(int));
                 f.write(i.a->str.c_str(), i.a->len);
-                f.write((char *) &i.a->ind1, sizeof(int));
-                f.write((char *) &i.a->ind2, sizeof(int));
             }
         }
         f.close();
         cout << "Файл записан!\n";
     }
+}
+
+bool check(const string& s) {
+    if (s.empty())
+        return false;
+    for (char i : s)
+        if ((i ^ '0') > 9)
+            return false;
+    return true;
+}
+
+int StrToInt(const string& s) {
+    int num = 0, i = 0;
+    for (int i = 0; i < s.length(); i++){
+        num = num*10 + s[i] - 0x30;
+    }
+    return num;
 }
 
 void Menu_text() {
@@ -260,29 +273,55 @@ void size_table() {
 }
 
 void add_menu(Table *tbl) {
-    int key1, key2;
-    string s;
-    cout << "Введите ключи и информацию: ";
-    cin >> key1 >> key2 >> s;
-    tbl->add(key1, key2, s, 0);
+    string k1, k2, s;
+    cout << "Введите ключи и информацию:\nПервый ключ: ";
+    cin >> k1;
+    cout << "Второй ключ: ";
+    cin >> k2;
+    cout << "Информация: ";
+    cin >> s;
+    if (check(k1) && check(k2)) {
+        tbl->add(StrToInt(k1), StrToInt(k2), s, 0);
+    }
+    else if (!check(k1)) {
+        cout << "Первый ключ содержит символы помимо цифр\n";
+    }
+    else if (!check(k2)) {
+        cout << "Второй ключ содержит символы помимо цифр\n";
+    }
+    else {
+        cout << "Оба ключа содержвт символы помимо цифр\n";
+    }
 }
 
 void find_menu(Table *tbl) {
-    int k, number;
+    int number;
+    string k;
     cout << "Введите номер пространства: ";
     cin >> number;
     cout << "Введите ключ: ";
     cin >> k;
-    tbl->find(k, number);
+    if (check(k)) {
+        tbl->find(StrToInt(k), number);
+    }
+    else {
+        cout << "Ключ содержит символы помимо цифр\n";
+    }
 }
 
 void del_menu(Table *tbl) {
-    int k, number;
+    int number;
+    string k;
     cout << "Введите номер пространства: ";
     cin >> number;
     cout << "Введите ключ: ";
     cin >> k;
-    tbl->del(k, number);;
+    if (check(k)) {
+        tbl->del(StrToInt(k), number);
+    }
+    else {
+        cout << "Ключ содержит символы помимо цифр\n";
+    }
 }
 
 void show_menu(Table *tbl) {
