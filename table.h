@@ -5,10 +5,11 @@
 
 #pragma pack (push, 1)
 struct Item {
+    int del; // 1-удалена
     int key1;
     int key2;
     int len;
-    std::string str;
+    int off;
     int ind1;
     int ind2;
 };
@@ -31,13 +32,14 @@ private:
     Space pk2[M];
 public:
     ~Table();
-    int load_from_file();
-    void add(int k1, int k2, const std::string& s, int flag);
-    void del(int k, int number);
-    void find(int k, int number);
+    int load_from_file(const std::string& filename);
+    void add_from_file(int d, int k1, int k2, int l, int offset);
+    void add(int k1, int k2, const std::string& s, const std::string& filename);
+    void del(int k, int number, const std::string& filename);
+    void find(int k, int number, const std::string& filename);
     static int hash(int k);
-    void show() const;
-    void upload_to_file();
+    void show(const std::string& filename) const;
+    void update(const std::string& filename);
 };
 
 #endif // TABLE.H
