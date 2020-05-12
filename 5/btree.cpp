@@ -290,29 +290,10 @@ void print(btree* T, int l) {
     }
 }
 
-int sled_el(btree* T, int key, int l) {
-    for (int i = 0;i <= T->n;i++) {
+info* max_el(btree* T) {
+    for (int i = T->n;i >= 0;i--) {
         if (T->children[i] != nullptr)
-            sled_el(T->children[i], key, l+1);
-        if (i < T->n) {
-            if (pred == key) {
-                std::cout << "Ключ: " << T->keys[i].key << "\nЗначение: " << T->keys[i].s << "\n";
-            }
-            pred = T->keys[i].key;
-        }
+            return max_el(T->children[i]);
     }
-}
-
-void sled(btree* T, int key) {
-    if (!T) {
-        std::cout << "Дерево пустое\n";
-        return;
-    }
-    info* q = search_key(T, key);
-    if (!q) {
-        std::cout << "Элемента с таким ключом не существует\n";
-        return;
-    }
-    pred = key + 1;
-    sled_el(T, key, 0);
+    return &T->keys[T->n-1];
 }
