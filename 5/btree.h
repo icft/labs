@@ -25,7 +25,6 @@ btree* insert_key( btree*, const info& );
 btree* insert( btree*, const info& );
 btree* remove_key( btree*, int );
 btree* remove( btree*, int );
-int sled_el(btree*, int, int);
-void sled(btree*, int);
 void inorder(btree*, int);
+info* max_el(btree*);
 #endif //BTREE_H
