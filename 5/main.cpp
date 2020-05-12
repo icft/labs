@@ -6,50 +6,80 @@
 
 using namespace std;
 
-const int M = 200;
-int size;
+
+bool check(const string& s) {
+    if (s.empty()) {
+        return false;
+    }
+    for (char i : s) {
+        if ((i ^ '0') > 9) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int StrToInt(const string& s) {
+    int num = 0, i = 0;
+    for (char i : s) {
+        num = num*10 + i - 0x30;
+    }
+    return num;
+}
 
 void menu () {
     cout << "1.Вставить элемент\n";
     cout << "2.Удалить элемент\n";
     cout << "3.Поиск\n";
     cout << "4.Вывести дерево\n";
-    cout << "5.Вывести элемент следующий за заданным\n";
+    cout << "5.Максимальный элемент\n";
+    cout << "6.Вывести в прямом порядке\n";
     cout << "7.Выход\n";
 }
 
 void Insert(btree** T) {
     info n;
-    int k;
+    string k;
     string s;
     cout << "Введите ключ: ";
     cin >> k;
     cout << "Введите информацию: ";
     cin >> s;
-    n.key = k;
-    n.s = s;
-    *T = insert(*T, n);
+    if (check(k)) {
+        n.key = StrToInt(k);
+        n.s = s;
+        *T = insert(*T, n);
+    } else {
+        cout << "Ключ содержит символы помимо цифр\n";
+    }
 }
 
 void Delete(btree** T) {
-    int k;
+    string k;
     cout << "Введите ключ: ";
     cin >> k;
-    *T = remove(*T, k);
+    if (check(k)) {
+        *T = remove(*T, StrToInt(k));
+    } else {
+        cout << "Ключ содержит символы помимо цифр\n";
+    }
 }
 
 void Search(btree* T) {
-    int k;
+    string k;
     cout << "Введите ключ: ";
     cin >> k;
-    search(T, k);
+    if (check(k)) {
+        search(T, StrToInt(k));
+    } else {
+        cout << "Ключ содержит символы помимо цифр\n";
+    }
 }
 
-void Sled(btree* T) {
-    int k;
-    cout << "Введите ключ: ";
-    cin >> k;
-    sled(T, k);
+void Max(btree* T) {
+    info* n;
+    n = max_el(T);
+    cout << "Ключ: " << n->key << "\nЗначение: " << n->s << "\n";
 }
 
 int main() {
@@ -73,11 +103,12 @@ int main() {
                 print(T, 0);
                 break;
             case 5:
-                Sled(T);
+                Max(T);
                 break;
             case 6:
                 inorder(T, 0);
                 break;
         }
     }
+    delete_tree(T);
 }
