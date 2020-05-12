@@ -262,8 +262,6 @@ btree* delete_tree(btree* T) {
         for (int i = 0; i < T->n; i++)
             delete_tree(T->children[i]);
     }
-    delete[] T->keys;
-    delete[] T->children;
     delete T;
     return nullptr;
 }
