@@ -13,6 +13,8 @@ typedef struct v_node {
     vector <int> sp;
 } node;
 
+void PRINT(vector<node*>& m);
+
 int find_num(vector<node*>& m, int num) {
     if (m.empty())
         return -1;
@@ -48,35 +50,27 @@ void add_edge(vector<node*>& m, int ind1, int ind2) {
     m[ind2]->sp.push_back(ind1);
 }
 
-void pop(vector<node*>& m, int num) {
-    size_t l = m.size(), i;
-    if (!find_num(m, num)) {
-        cout << "Вершины с таким номером не существует\n";
-        return;
-    }
-    for(i = 0; i < l; i++) {
-        if (m[i]->number == num) {
-            size_t l_sp = m[i]->sp.size(), j;
-            for (j = 0; j < l_sp; j++) {if (!find_num(m, num)) {
-                    cout << "Вершины с таким номером не существует\n";
-                    return;
-                }
-                int ind = m[i]->sp[j];
-                size_t l_1 = m[ind]->sp.size(), z;
-                for (z = 0; z < l_1; z++) {
-                    if (m[m[ind]->sp[z]]->number == num) {
-                        m[ind]->sp.erase(m[ind]->sp.begin() + z);
-                        break;
-                    }
-                }
+void pop(vector<node*>& m, int num, int index) {
+    size_t l = m.size();
+    size_t l_sp = m[index]->sp.size(), j;
+    for (j = 0; j < l_sp; j++) {
+        int ind = m[index]->sp[j];
+        size_t l_1 = m[ind]->sp.size(), z;
+        for (z = 0; z < l_1; z++) {
+            if (m[m[ind]->sp[z]]->number == num) {
+                m[ind]->sp.erase(m[ind]->sp.begin() + z);
             }
-            m[i]->sp.clear();
-            node* tmp = m[i];
-            m.erase(m.begin()+i);
-            delete tmp;
-            break;
         }
     }
+    for(int i = 0; i < l; i++) {
+        for (int & j : m[i]->sp) {
+            if (j > index) {
+                j--;
+            }
+        }
+    }
+    m[index]->sp.clear();
+    m.erase(m.begin()+index);
 }
 
 void dijkstra(vector<node*>& m, int s) {
@@ -113,7 +107,7 @@ void erase(vector<node*>& m) {
     int i, l = m.size();
     while (i <= l) {
         m[0]->sp.clear();
-        node* tmp = m[0];
+        node *tmp = m[0];
         m.erase(m.begin());
         delete tmp;
         i++;
@@ -127,8 +121,7 @@ void generate(vector<node*>& m, int v, int e) {
         return;
     }
     for (int i = 0; i < v;) {
-        if (find_num(m, i+1) == 0) {
-            cout << i << "\n";
+        if (find_num(m, i+1) == -1) {
             int x = (rand() % v) + 1;
             int y = (rand() % v) + 1;
             add_node(m, i+1, x, y);
@@ -137,8 +130,9 @@ void generate(vector<node*>& m, int v, int e) {
     }
     for (int i = 0; i < e;) {
         int a = rand() & v + 1, b = rand() & v + 1;
-        if (find_num(m, a) == 1 && find_num(m, b) == 1) {
-            add_edge(m, a, b);
+        int ind1 = find_num(m, a), ind2 = find_num(m ,b);
+        if (ind1 >= 0 && ind2 >= 0 && !find_edge(m, ind1, ind2) && ind1 != ind2) {
+            add_edge(m, ind1, ind2);
             i++;
         }
     }
@@ -198,7 +192,8 @@ void READ_FILE(vector<node*>& m) {
             f.read((char *)&l, sizeof(int));
             for (int j = 0; i < l; i++) {
                 f.read((char*)&e, sizeof(int));
-                add_edge(m, n, e);
+                int a = find_num(m, n), b = find_num(m , e);
+                add_edge(m, a, b);
             }
             i++;
         }
@@ -269,7 +264,12 @@ void DEL(vector<node*>& m) {
     int num;
     cout << "Введите номер вершины: ";
     cin >> num;
-    pop(m , num);
+    int a = find_num(m , num);
+    if (a< 0) {
+        cout << "Вершины с таким номером не существует\n";
+        return;
+    }
+    pop(m , num, a);
 }
 
 void DIJKSTRA(vector<node*>& m) {
@@ -299,7 +299,7 @@ void PRINT(vector<node*>& m) {
     size_t l = m.size(), i;
     for (i = 0; i < l; i++) {
         cout << m[i]->number << ":" << " ";
-        size_t l_sp = m[i]->sp.size(), j;
+        size_t l_sp = m[i]->sp.size(), j = 0;
         for (j = 0; j < l_sp; j++)
             cout << m[m[i]->sp[j]]->number << " ";
         cout << "\n";
@@ -310,6 +310,14 @@ int main() {
     vector<node*> m;
     Menu();
     int c = 0;
+    for (int i = 0; i< 5; i++)
+        add_node(m, i+1, i+1, i+1);
+    add_edge(m, 0, 1);
+    add_edge(m, 0, 4);
+    add_edge(m, 1, 4);
+    add_edge(m, 2, 3);
+    add_edge(m, 2, 4);
+    add_edge(m, 3, 4);
     while (c != 9) {
         cout << "Введите команду: ";
         cin >> c;
