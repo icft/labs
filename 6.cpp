@@ -1,27 +1,4 @@
-void generate(vector<node*>& m, int v, int e) {
-    srand(time(nullptr));
-    if (e > (v * (v - 1) / 2)) {
-        cout << "Граф с такими параметрами создать невозможно\n";
-        return;
-    }
-    for (int i = 0; i < v;) {
-        if (find_num(m, i+1) == -1) {
-            int x = (rand() % v) + 1;
-            int y = (rand() % v) + 1;
-            add_node(m, i+1, x, y);
-            i++;
-        }
-    }
-    PRINT(m);
-    for (int i = 0; i < e;) {
-        int a = rand() % v + 1, b = rand() % v + 1;
-        int ind1 = find_num(m, a), ind2 = find_num(m ,b);
-        if (ind1 >= 0 && ind2 >= 0 && !find_edge(m, ind1, ind2) && ind1 != ind2) {
-            add_edge(m, ind1, ind2);
-            i++;
-        }
-    }
-}#include <iostream>
+#include <iostream>
 #include <vector>
 #include <utility>
 #include <climits>
@@ -139,10 +116,6 @@ void erase(vector<node*>& m) {
 
 void generate(vector<node*>& m, int v, int e) {
     srand(time(nullptr));
-    if (e > (v * (v - 1) / 2)) {
-        cout << "Граф с такими параметрами создать невозможно\n";
-        return;
-    }
     for (int i = 0; i < v;) {
         if (find_num(m, i+1) == -1) {
             int x = (rand() % v) + 1;
@@ -151,7 +124,6 @@ void generate(vector<node*>& m, int v, int e) {
             i++;
         }
     }
-    PRINT(m);
     for (int i = 0; i < e;) {
         int a = rand() % v + 1, b = rand() % v + 1;
         int ind1 = find_num(m, a), ind2 = find_num(m ,b);
@@ -334,14 +306,14 @@ int main() {
     vector<node*> m;
     Menu();
     int c = 0;
-    for (int i = 0; i< 5; i++)
+    /*for (int i = 0; i< 5; i++)
         add_node(m, i+1, i+1, i+1);
     add_edge(m, 0, 1);
     add_edge(m, 0, 4);
     add_edge(m, 1, 4);
     add_edge(m, 2, 3);
     add_edge(m, 2, 4);
-    add_edge(m, 3, 4);
+    add_edge(m, 3, 4);*/
     while (c != 9) {
         cout << "Введите команду: ";
         cin >> c;
