@@ -15,20 +15,20 @@ double nephroid::Get_S() const {
 }
 
 double nephroid::Get_R(double t) const {
-    return 4 * r * sin(t * M_PI / 180);
+    return 4 * r * sin(t);
 }
 
-double nephroid::Ger_rad() const
+double nephroid::Get_rad() const
 {
     return r;
 }
 
 double nephroid::Get_x(double t) const {
-    return 6 * r * cos(t * M_PI / 180) - 4 * r * pow(cos(t * M_PI / 180), 3);
+    return 6 * r * cos(t) - 4 * r * pow(cos(t), 3);
 }
 
 double nephroid::Get_y(double t) const {
-    return 4 * r * pow(sin(t * M_PI / 180), 3);
+    return 4 * r * pow(sin(t), 3);
 }
 
 std::string nephroid::Get_eq() const {
@@ -43,3 +43,4 @@ std::string nephroid::Get_eq() const {
 void nephroid::radius(double rad) {
     r = rad;
 }
+
