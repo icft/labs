@@ -2,38 +2,43 @@
 #include <iostream>
 
 void Menu() {
-    std::cout << "1. Create curve\n"
-        "2. Print the length of the curve\n"
-        "3. Print the radius of curvature\n"
-        "4. Print the x and y values\n"
-        "5. Print the equation of the curve\n"
-        "6. Exit\n";
+    std::cout <<
+        "1. Print the length of the curve\n"
+        "2. Print the radius of curvature\n"
+        "3. Print the x and y values\n"
+        "4. Print the equation of the curve\n"
+        "5. Print the radius of curve\n"
+        "6. Change the radius of curve\n"
+        "7. Exit\n";
 }
 
 int main() {
-    Menu();
     int c = 1;
+    std::cout << "Create curve\n";
     nephroid n;
+    double rad;
+    while (true) {
+        std::cout << "Enter the radius: ";
+        std::cin >> rad;
+        if (rad < 0) {
+            std::cout << "Radius cannot be negative. Try again.\n";
+            continue;
+        }
+        n.radius(rad);
+        break;
+    }
+    std::cout << "Functions:\n";
+    Menu();
     while (c != 7) {
         std::cout << "Enter the command number: ";
         std::cin >> c;
         switch (c) {
         case 1: {
-            double rad;
-            std::cout << "Enter the radius: ";
-            std::cin >> rad;
-
-            if (rad < 0)
-                std::cout << "Radius cannot be negative\n";
-            n.radius(rad);
-            break;
-        }
-        case 2: {
             double l = n.Get_L();
             std::cout << "The the length of the curve: " << l << "\n";
             break;
         }
-        case 3: {
+        case 2: {
             std::cout << "Enter the value of the parameter t: ";
             double t;
             std::cin >> t;
@@ -41,7 +46,7 @@ int main() {
             std::cout << "The radius of curvature: " << r << "\n";
             break;
         }
-        case 4: {
+        case 3: {
             std::cout << "Enter the value of the parameter t: ";
             double t;
             std::cin >> t;
@@ -51,15 +56,23 @@ int main() {
             std::cout << "Y value: " << y << "\n";
             break;
         }
-        case 5: {
+        case 4: {
             std::string str = n.Get_eq();
             std::cout << str << "\n";
             break;
         }
-        case 6: {
+        case 5: {
             double f = n.Ger_rad();
-            std::cout << f << "\n";
+            std::cout << "Radius: " << f << "\n";
+            break;
+        }
+        case 6: {
+            double rad;
+            std::cout << "Enter the new radius: ";
+            std::cin >> rad;
+            n.radius(rad);
         }
         }
     }
 }
+
