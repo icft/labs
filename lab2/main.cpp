@@ -60,6 +60,7 @@ int main() {
         case 4: {
             double s = n.Get_S();
             std::cout << "Area: " << s << "\n";
+            break;
         }
         case 5: {
             std::string str = n.Get_eq();
@@ -80,3 +81,4 @@ int main() {
         }
     }
 }
+
