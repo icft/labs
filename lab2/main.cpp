@@ -68,7 +68,7 @@ int main() {
             break;
         }
         case 6: {
-            double f = n.Ger_rad();
+            double f = n.Get_rad();
             std::cout << "Radius: " << f << "\n";
             break;
         }
@@ -81,4 +81,3 @@ int main() {
         }
     }
 }
-
