@@ -41,6 +41,8 @@ std::string nephroid::Get_eq() const {
 }
 
 void nephroid::radius(double rad) {
+    if (rad < 0)
+        throw std::exception("Invalid radius\n");
     r = rad;
 }
 
