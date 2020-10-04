@@ -19,14 +19,15 @@ int main() {
     nephroid n;
     double rad;
     while (true) {
-        std::cout << "Enter the radius: ";
-        std::cin >> rad;
-        if (rad < 0) {
-            std::cout << "Radius cannot be negative. Try again.\n";
-            continue;
+        try {
+            std::cout << "Enter the radius: ";
+            std::cin >> rad;
+            n.radius(rad);
+            break;
         }
-        n.radius(rad);
-        break;
+        catch (std::exception& ex) {
+            std::cout << ex.what();
+        }
     }
     std::cout << "Functions:\n";
     Menu();
@@ -76,7 +77,12 @@ int main() {
             double rad;
             std::cout << "Enter the new radius: ";
             std::cin >> rad;
-            n.radius(rad);
+            try {
+                n.radius(rad);
+            }
+            catch (std::exception& ex) {
+                std::cout << ex.what();
+            }
         }
         }
     }
