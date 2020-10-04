@@ -11,11 +11,17 @@ TEST(nephroid, testConstructor) {
 	nephroid n2(5);
 	n2.radius(20);
 	ASSERT_EQ(n2.Get_rad(), 20);
+	ASSERT_ANY_THROW(nephroid(-10));
+	ASSERT_ANY_THROW(nephroid(-8));
 }
 
 TEST(nephroid, testGet_L) {
 	nephroid n(5);
 	ASSERT_NEAR(n.Get_L(), 120, nephroid::ABS_ERROR);
+	nephroid n2(8);
+	ASSERT_NEAR(n2.Get_L(), 192, nephroid::ABS_ERROR);
+	nephroid n3(45);
+	ASSERT_NEAR(n3.Get_L(), 1080, nephroid::ABS_ERROR);
 }
 
 TEST(nephroid, testGet_S) {
@@ -51,4 +57,5 @@ TEST(nephroid, test_radius) {
 	ASSERT_NEAR(n.Get_rad(), 20, nephroid::ABS_ERROR);
 	n.radius(41);
 	ASSERT_NEAR(n.Get_rad(), 41, nephroid::ABS_ERROR);
+	ASSERT_ANY_THROW(n.radius(-8));
 }
