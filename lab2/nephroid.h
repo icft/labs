@@ -12,6 +12,8 @@ public:
         r = 0;
     }
     nephroid(double a) {
+        if (a < 0)
+            throw std::exception("Invalid radius\n");
         r = a;
     }
     void radius(double);
@@ -23,3 +25,5 @@ public:
     double Get_y(double) const;
     std::string Get_eq() const;
 };
+
+
