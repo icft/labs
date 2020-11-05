@@ -17,29 +17,23 @@ class Scheme
 {
 private:
     int amount;
-    struct clem* arr[MAX_SIZE];
+    struct clem arr[MAX_SIZE];
 public:
     Scheme() {
         amount = 0;
-        for (int i = 0; i < MAX_SIZE; i++) {
-            arr[i] = nullptr;
-        }
     }
-    ~Scheme() {
-        for (int i = 0; i < MAX_SIZE; i++) {
-            delete arr[i];
-        }
-    }
-    int find(int num);
-    void init_count(int in, int out);
-    void init_arr(const std::list<struct clem*>);
-    void overriding_states();
-    void print();
-    void set_new_state(int ind);
-    char get_state(int ind);
-    void add_clem_connection(int ind);
-    void reduce_clem_connection(int ind);
-    void add_clem(struct clem*);
+    Scheme(int, int);
+    Scheme(const struct clem*, int);
+    int find(int) const;
+    std::istream& overriding_states(std::istream&);
+    std::ostream& print(std::ostream&) const;
+    void set_new_state(int, char);
+    char get_state(int) const;
+    void add_clem_connection(int, int);
+    void reduce_clem_connection(int, int);
+    void add_clem(struct clem);
 };
 
 #endif
+
+
