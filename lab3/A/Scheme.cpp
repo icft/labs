@@ -1,169 +1,106 @@
-#include <iostream>
 #include "Scheme.h"
+#include <string>
+#include <iostream>
 
-void Menu() {
-    std::cout << "1.Переопределить состояния клемм\n"
-        "2.Вывод\n"
-        "3.Установить состояние клеммы по номеру\n"
-        "4.Вывести текущее состояние клеммы по номеру\n"
-        "5.Увеличить количество соединений для клеммы по номеру\n"
-        "6.Уменьшить количество соединений для клеммы по номеру\n"
-        "7.Добавить клемму\n"
-        "8.Выход\n";
+Scheme::Scheme(int in, int ou) {
+	if (in + ou > MAX_SIZE)
+		throw std::exception("Превышено максимальное количество клемм");
+	amount = in + ou;
+	for (int i = 0; i < in; i++) {
+		arr[i].number = i + 1;
+		arr[i].type = 0;
+		arr[i].count = 0;
+		arr[i].signal = 'x';
+	} for (int i = in; i < amount; i++) {
+		arr[i].number = i + 1;
+		arr[i].type = 1;
+		arr[i].count = 0;
+		arr[i].signal = 'x';
+	}
 }
 
-void Create() {
-    std::cout << "Варианты создания элемента:\n"
-        "1.Ввод количества входных и выходных клемм. В данном случае вначале будут входные, а потом выходные клеммы. Их номера будут совпадать их индексам\n"
-        "2.Ввод клемм\n"
-        "Введите тип ввода: ";
+Scheme::Scheme(const struct clem* a, int size) {
+	if (size > MAX_SIZE)
+		throw std::exception("Превышено максимальное количество клемм");
+	for (int i = 0; i < size; i++) {
+		arr[i] = a[i];
+	}
+	amount = size;
 }
 
-int main() {
-    setlocale(LC_ALL, "RUSSIAN");
-    Create();
-    int c;
-    Scheme* sc = nullptr;
-    std::cin >> c;
-    if (c == 1) {
-        int inp, out;
-        while (true) {
-            std::cout << "Количество входных и выходных клемм: ";
-            std::cin >> inp >> out;
-            try {
-                sc = new Scheme(inp, out);
-            }
-            catch (std::exception& ex) {
-                std::cout << ex.what() << "\n";
-                std::cout << "Повторите ввод ещё раз\n";
-            }
-        }
-    }
-    else {
-        int size;
-        while (true) {
-            std::cout << "Введите количество элементов: ";
-            std::cin >> size;
-            if (size > MAX_SIZE)
-                std::cout << "Размер больше допустимого повтроите ввод\n";
-            else
-                break;
-        }
-        struct clem* a = new struct clem[size];
-        std::cout << "Ввод клемм. Номер, тип(0-входная, 1-выходная), количество соединений, тип сигнала\n";
-        for (int i = 0; i < size; i++) {
-            struct clem d;
-            std::cin >> d.number >> d.type >> d.count >> d.signal;
-            if (d.number == -1)
-                break;
-            if ((d.type == 0) && (d.count > 1)) {
-                std::cout << "Количество соединений для входной клемы должно быть меньше 2\n";
-                continue;
-            }
-            if ((d.type == 1) && (d.count > 4)) {
-                std::cout << "Количество соединений для входной клемы должно быть меньше 4\n";
-                continue;
-            }
-            if ((d.signal != '0') && (d.signal != '1') && (d.signal != 'x')) {
-                std::cout << "Такого типа сигнала не существует\n";
-                continue;
-            }
-            a[i] = d;
-        }
-        try {
-            sc = new Scheme(a, size);
-        }
-        catch (std::exception& ex) {
-            std::cout << ex.what() << "\n";
-        }
-    }
-    Menu();
-    c = -1;
-    while (c != 8) {
-        std::cout << "Введите номер команды: ";
-        std::cin >> c;
-        switch (c) {
-        case 1: {
-            std::cout << "Введите новые значения: ";
-            (*sc).overriding_states(std::cin);
-            break;
-        }
-        case 2: {
-            (*sc).print(std::cout);
-            break;
-        }
-        case 3: {
-            std::cout << "Введите номер клеммы и новое состояние: ";
-            int num;
-            char c;
-            std::cin >> num >> c;
-            try {
-                (*sc).set_new_state(num, c);
-            }
-            catch (std::exception& ex) {
-                std::cout << ex.what() << "\n";
-            }
-            break;
-        }
-        case 4: {
-            std::cout << "Введите номер клеммы: ";
-            int num;
-            std::cin >> num;
-            char c;
-            try {
-                c = (*sc).get_state(num);
-            }
-            catch (std::exception& ex) {
-                std::cout << ex.what() << "\n";
-            }
-            std::cout << "Текущее состояние: " << c << "\n";
-            break;
-        }
-        case 5: {
-            std::cout << "Введите номер клеммы и количество: ";
-            int num, count;
-            std::cin >> num >> count;
-            try {
-                (*sc).add_clem_connection(num, count);
-            }
-            catch (std::exception& ex) {
-                std::cout << ex.what() << "\n";
-            }
-            break;
-        }
-        case 6: {
-            std::cout << "Введите номер клеммы и количество: ";
-            int num, count;
-            std::cin >> num >> count;
-            try {
-                (*sc).reduce_clem_connection(num, count);
-            }
-            catch (std::exception& ex) {
-                std::cout << ex.what() << "\n";
-            }
-            break;
-        }
-        case 7: {
-            struct clem f;
-            std::cout << "Введите данные клеммы(номер, тип, количество, сигнал): ";
-            std::cin >> f.number >> f.type >> f.count >> f.signal;
-            if ((f.type == 0) && (f.count > 1)) {
-                std::cout << "Количество соединений для входной клемы должно быть меньше 2\n";
-            }
-            if ((f.type == 1) && (f.count > 4)) {
-                std::cout << "Количество соединений для входной клемы должно быть меньше 4\n";
-            }
-            if ((f.signal != '0') && (f.signal != '1') && (f.signal != 'x')) {
-                std::cout << "Такого типа сигнала не существует\n";
-            }
-            try {
-                (*sc).add_clem(f);
-            }
-            catch (std::exception& ex) {
-                std::cout << ex.what() << "\n";
-            }
-            break;
-        }
-        }
-    }
+int Scheme::find(int num) const {
+	for (int i = 0; i < amount; i++)
+		if (arr[i].number == num)
+			return i;
+	return -1;
 }
+
+void Scheme::set_new_state(int num, char c) {
+	int i = find(num);
+	if (i > -1)
+		arr[i].signal = c;
+	else
+		throw std::exception("Нет клеммы с таким номером");
+}
+
+char Scheme::get_state(int num) const {
+	int i = find(num);
+	if (i > -1)
+		return arr[i].signal;
+	else
+		throw std::exception("Нет клеммы с таким номером");
+}
+
+
+void Scheme::add_clem_connection(int num, int count) {
+	int i = find(num);
+	if (i > -1) {
+		if ((arr[i].type == 0 && count > 1) or (arr[i].type == 1 && count > 3)) {
+			throw std::exception("Превышено максимальное число соединений для клеммы");
+		}
+		arr[i].count = count;
+	} else
+		throw std::exception("Нет клеммы с таким номером");
+}
+
+void Scheme::reduce_clem_connection(int num, int count) {
+	int i = find(num);
+	if (i > -1) {
+		if ((arr[i].type == 0 && count > 1) or (arr[i].type == 1 && count > 3)) {
+			throw std::exception("Превышено максимальное число соединений для клеммы");
+		}
+		if ((arr[i].type == 0 && count > arr[i].count) or (arr[i].type == 1 && count > arr[i].count))
+		{
+			throw std::exception("Новое количество больше старого");
+		}
+		arr[i].count = count;
+	}
+	else
+		throw std::exception("Нет клеммы с таким номером");
+}
+
+void Scheme::add_clem(struct clem c) {
+	if (amount == MAX_SIZE)
+		throw std::exception("Превышено максимальное количество клемм");
+	arr[amount] = c;
+	amount++;
+}
+
+
+std::istream& Scheme::overriding_states(std::istream& s) {
+	for (int i = 0; i < amount; i++) {
+		char c;
+		s >> c;
+		arr[i].signal = c;
+	}
+	return s;
+}
+
+std::ostream& Scheme::print(std::ostream& s) const {
+	for (int i = 0; i < amount; i++) {
+		std::string type = (arr[i].type == 0) ? "входная" : "выходная";
+		s << "Номер: " << arr[i].number << "; Тип: " << type << "; Количество соединений: " << arr[i].count << "; Тип сигнала: " << arr[i].signal << "\n";
+	}
+	return s;
+}
+
