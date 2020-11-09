@@ -20,6 +20,8 @@ Scheme::Scheme(int in, int ou) {
 }
 
 Scheme::Scheme(const struct clem* a, int size) {
+	if (a == nullptr)
+		throw std::exception("Массив пустой");
 	if (size > MAX_SIZE)
 		throw std::exception("Превышено максимальное количество клемм");
 	for (int i = 0; i < size; i++) {
@@ -89,9 +91,21 @@ void Scheme::add_clem(struct clem c) {
 
 std::istream& Scheme::overriding_states(std::istream& s) {
 	for (int i = 0; i < amount; i++) {
-		char c;
-		s >> c;
-		arr[i].signal = c;
+		struct clem d;
+		s >> d.number >> d.type >> d.count >> d.signal;
+		if (d.type == 0 && d.count > 1 || d.type == 1 && d.count > 3) {
+			s.setstate(std::ios::failbit);
+			return s;
+		}
+		if (d.signal != 'x' && d.signal != '0' && d.signal != '1') {
+			s.setstate(std::ios::failbit);
+			return s;
+		}
+		if (d.type != 0 && d.type != 1) {
+			s.setstate(std::ios::failbit);
+			return s;
+		}
+		arr[i] = d;
 	}
 	return s;
 }
