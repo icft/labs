@@ -7,11 +7,15 @@
 
 struct clem {
     int number;
-    int type;
+    Type type;
     int count;
     char signal;
 };
 
+enum Type {
+    input = 0,
+    output = 1,
+};
 
 class Scheme
 {
@@ -29,15 +33,18 @@ public:
     Scheme(int, int);
     Scheme(const struct clem*, int);
     Scheme(const Scheme&);
-    Scheme& operator= (const Scheme& scheme);
-    int find(int);
+    Scheme(Scheme&&);
+    Scheme& operator= (const Scheme&);
+    Scheme& operator= (Scheme&&);
+    int find(int) const;
     friend std::istream& operator>> (std::istream&, Scheme&);
     friend std::ostream& operator<< (std::ostream&, const Scheme&);
     void operator() (int, int);
-    char operator[] (int);
+    char operator[] (int) const;
     void add_clem_connection(int, int);
     void reduce_clem_connection(int, int);
-    void operator+= (struct clem);
+    Scheme& operator+= (const Scheme&);
+    const Scheme operator+ (const Scheme&) const;
 };
 
 #endif
