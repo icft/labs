@@ -6,7 +6,6 @@
 #include <list>
 
 struct clem {
-    int number;
     Type type;
     int count;
     char signal;
@@ -30,13 +29,14 @@ public:
     ~Scheme() {
         delete[] arr;
     }
+    Scheme(struct clem);
     Scheme(int, int);
     Scheme(const struct clem*, int);
     Scheme(const Scheme&); //копирующий конструктор
     Scheme(Scheme&&); //перемещающий конструктор
     Scheme& operator= (const Scheme&); //оператор присваивания копирования
-    Scheme& operator= (Scheme&&); //опиратор присваивания перемещения
-    int find(int) const;
+    Scheme& operator= (Scheme&&); //оператор присваивания перемещения
+    //int find(int) const;
     friend std::istream& operator>> (std::istream&, Scheme&);
     friend std::ostream& operator<< (std::ostream&, const Scheme&);
     void operator() (int, int);
@@ -44,9 +44,10 @@ public:
     void add_clem_connection(int, int);
     void reduce_clem_connection(int, int);
     Scheme& operator+= (const Scheme&);
-    const Scheme operator+ (const Scheme&) const;
+    friend const Scheme operator+ (const Scheme&, const Scheme&);
 };
 
 #endif
+
 
 
