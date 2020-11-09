@@ -37,6 +37,7 @@ Scheme::Scheme(const Scheme& scheme) {
 
 Scheme::Scheme(struct clem s) {
     amount = 1;
+    arr = new struct clem[amount];
     arr[0] = s;
 }
 
