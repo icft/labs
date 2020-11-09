@@ -32,10 +32,10 @@ public:
     }
     Scheme(int, int);
     Scheme(const struct clem*, int);
-    Scheme(const Scheme&);
-    Scheme(Scheme&&);
-    Scheme& operator= (const Scheme&);
-    Scheme& operator= (Scheme&&);
+    Scheme(const Scheme&); //копирующий конструктор
+    Scheme(Scheme&&); //перемещающий конструктор
+    Scheme& operator= (const Scheme&); //оператор присваивания копирования
+    Scheme& operator= (Scheme&&); //опиратор присваивания перемещения
     int find(int) const;
     friend std::istream& operator>> (std::istream&, Scheme&);
     friend std::ostream& operator<< (std::ostream&, const Scheme&);
@@ -48,4 +48,5 @@ public:
 };
 
 #endif
+
 
