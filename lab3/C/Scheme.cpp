@@ -17,10 +17,10 @@ Scheme::Scheme(int in, int out) {
 Scheme::Scheme(const struct clem* a, int size) {
    if (a == nullptr)
        throw std::exception("Массив пустой");
+   amount = size;
    arr = new struct clem[amount];
    for (int i = 0; i < size; i++)
        arr[i] = a[i];
-   amount = size;
 }
 
 Scheme::Scheme(const Scheme& scheme) {
