@@ -1,4 +1,5 @@
 #include "Scheme.h"
+#include <stdexcept>
 
 Scheme::Scheme(int in, int out) {
     amount = in + out;
