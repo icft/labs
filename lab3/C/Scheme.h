@@ -39,8 +39,8 @@ public:
     //int find(int) const;
     friend std::istream& operator>> (std::istream&, Scheme&);
     friend std::ostream& operator<< (std::ostream&, const Scheme&);
-    void operator() (int, int);
-    char operator[] (int) const;
+    void operator() (int, struct clem);
+    struct clem operator[] (int) const;
     void add_clem_connection(int, int);
     void reduce_clem_connection(int, int);
     Scheme& operator+= (const Scheme&);
@@ -48,6 +48,3 @@ public:
 };
 
 #endif
-
-
-
