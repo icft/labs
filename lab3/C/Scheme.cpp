@@ -36,7 +36,7 @@ Scheme::Scheme(const Scheme& scheme) {
     }
 }
 
-Scheme::Scheme(struct clem s) {
+Scheme::Scheme(struct clem& s) {
     amount = 1;
     arr = new struct clem[1];
     arr[0] = s;
@@ -56,7 +56,7 @@ Scheme& Scheme::operator=(const Scheme& scheme) {
             tmp = new struct clem[scheme.amount];
         }
         catch (const std::bad_alloc&) {
-            throw "Произошла ошибка при выделении памяти\n";
+            throw std::exception("Произошла ошибка при выделении памяти\n");
         }
         delete[] arr;
         amount = scheme.amount;
@@ -116,21 +116,21 @@ std::ostream& operator<<(std::ostream& s, const Scheme& scheme) {
     return s;
 }
 
-void Scheme::operator()(int num, struct clem c) {
+void Scheme::operator()(int num, struct clem& c) {
     if (c.signal != 'x' && c.signal != '0' && c.signal != '1')
         throw std::exception("Не cуществует такого сигнала");
     if (c.type != input && c.type != output)
         throw std::exception("Не cуществует такого типа");
     if (c.count > 1 && c.type == input || c.count > 3 && c.type == output)
         throw std::exception("Превышено количество соединений для такой клеммы");
-    if (num <= amount)
+    if (num <= amount && num > 0)
         arr[num-1] = c;
     else
         throw std::exception("Нет клеммы с таким номером");
 }
 
 struct clem Scheme::operator[](int num) const {
-    if (num <=  amount)
+    if (num <= amount && num > amount)
         return arr[num-1];
     else
         throw std::exception("Нет клеммы с таким номером");
@@ -142,7 +142,7 @@ Scheme& Scheme::operator+=(const Scheme& scheme) {
     try {
         ax = new struct clem[amount + scheme.amount];
     } catch (const std::bad_alloc&) {
-        throw "Произошла ошибка при выделении памяти\n";
+        throw std::exception("Произошла ошибка при выделении памяти\n");
     }
     for (int i = 0; i < amount; i++) {
         ax[i] = arr[i];
@@ -158,7 +158,12 @@ Scheme& Scheme::operator+=(const Scheme& scheme) {
 const Scheme operator+(const Scheme& scheme1, const Scheme& scheme2) {
     Scheme s;
     s.amount = scheme1.amount + scheme2.amount;
-    s.arr = new struct clem[s.amount];
+    try {
+        s.arr = new struct clem[s.amount];
+    }
+    catch (const std::bad_alloc&) {
+        throw std::exception("Произошла ошибка при выделении памяти\n");
+    }
     for (int i = 0; i < scheme1.amount; i++) {
         s.arr[i] = scheme1.arr[i];
     }
@@ -177,7 +182,7 @@ const Scheme operator+(const Scheme& scheme1, const Scheme& scheme2) {
 //}
 
 void Scheme::add_clem_connection(int num, int count) {
-    if (num <= amount) {
+    if (num <= amount && num > 0) {
         if ((arr[num-1].type == 0 && count > 1) or (arr[num-1].type == 1 && count > 3)) {
             throw std::exception("Превышено максимальное число соединений для клеммы");
         }
@@ -189,7 +194,7 @@ void Scheme::add_clem_connection(int num, int count) {
 
 void Scheme::reduce_clem_connection(int num, int count) {
     if (num <= amount) {
-        if ((arr[num-1].type == input && count > 1) || (arr[num-1].type == output && count > 3)) {
+        if ((arr[num-1].type == input && count > 1) or (arr[num-1].type == output && count > 3)) {
             throw std::exception("Превышено максимальное число соединений для клеммы");
         }
         if (count > arr[num-1].count) {
