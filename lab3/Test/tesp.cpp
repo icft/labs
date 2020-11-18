@@ -22,7 +22,7 @@ TEST(Scheme, TestInpOutConstructor) {
 		ASSERT_EQ(a[i].count, 0);
 		ASSERT_EQ(a[i].signal, 'x');
 	}
-	ASSERT_ANY_THROW(Scheme(6,7));
+	EXPECT_THROW(Scheme(6, 7), std::exception);
 }
 
 TEST(Scheme, TestArrConstructor) {
@@ -45,8 +45,8 @@ TEST(Scheme, TestArrConstructor) {
 	ASSERT_EQ(arr[2].count, 3);
 	ASSERT_EQ(arr[2].signal, '1');
 	struct clem* s = nullptr;
-	ASSERT_ANY_THROW(Scheme(s, 5));
-	ASSERT_ANY_THROW(Scheme(a, 15));
+	EXPECT_THROW(Scheme(s, 5), std::exception);
+	EXPECT_THROW(Scheme(a, 15), std::exception);
 }
 
 TEST(Scheme, TestFind) {
@@ -71,9 +71,9 @@ TEST(Scheme, TestFunctor) {
 	Scheme sc(a, 3);
 	sc(45, {45, 1, 3 ,'1'});
 	sc(34, { 34, 0, 1 ,'x' });
-	ASSERT_ANY_THROW(sc(45, { 45, 1, 1, 'f' }));
-	ASSERT_ANY_THROW(sc(45, { 45, 5, 1, '0' }));
-	ASSERT_ANY_THROW(sc(45, { 45, 1, 45, '1' }));
+	EXPECT_THROW(sc(45, { 45, 1, 1, 'f' }), std::exception);
+	EXPECT_THROW(sc(45, { 45, 5, 1, '0' }), std::exception);
+	EXPECT_THROW(sc(45, { 45, 1, 45, '1' }), std::exception);
 	struct clem* arr = sc.get_arr();
 	ASSERT_EQ(arr[0].type, 1);
 	ASSERT_EQ(arr[0].count, 3);
@@ -96,7 +96,7 @@ TEST(Scheme, TestIndexOperator) {
 	ASSERT_EQ(d.type, 1);
 	ASSERT_EQ(d.count, 3);
 	ASSERT_EQ(d.signal, '1');
-	ASSERT_ANY_THROW(d = sc[5]);
+	EXPECT_THROW(d = sc[5], std::exception);
 }
 
 TEST(Scheme, TestAdditionOverAssignmentOperator) {
@@ -127,7 +127,7 @@ TEST(Scheme, TestAdditionOverAssignmentOperator) {
 	c[3] = { 2, 0, 0, 'x' };
 	c[4] = { 1, 1, 3, '1' };
 	Scheme sc2(c, 4);
-	ASSERT_ANY_THROW(sc += sc2);
+	EXPECT_THROW(sc += sc2, std::exception);
 }
 
 TEST(Scheme, TestAdditionOperator) {
@@ -161,7 +161,7 @@ TEST(Scheme, TestAdditionOperator) {
 	c[5] = { 1, 1, 3, '1' };
 	c[6] = { 1, 1, 3, '1' };
 	Scheme sc2(c, 7);
-	ASSERT_ANY_THROW(Scheme s2 = sc + sc2);
+	EXPECT_THROW(Scheme s2 = sc + sc2, std::exception);
 }
 
 
@@ -174,9 +174,9 @@ TEST(Scheme, TestAddClem) {
 	struct clem* arr = sc.get_arr();
 	ASSERT_EQ(arr[0].count, 3);
 	ASSERT_EQ(arr[1].count, 1);
-	ASSERT_ANY_THROW(sc.add_clem_connection(1, 100000));
-	ASSERT_ANY_THROW(sc.add_clem_connection(2, 2));
-	ASSERT_ANY_THROW(sc.add_clem_connection(156, 1));
+	EXPECT_THROW(sc.add_clem_connection(1, 100000), std::exception);
+	EXPECT_THROW(sc.add_clem_connection(2, 2), std::exception);
+	EXPECT_THROW(sc.add_clem_connection(156, 1), std::exception);
 }
 
 TEST(Scheme, TestReduceClem) {
@@ -188,9 +188,9 @@ TEST(Scheme, TestReduceClem) {
 	struct clem* arr = sc.get_arr();
 	ASSERT_EQ(arr[0].count, 1);
 	ASSERT_EQ(arr[1].count, 0);
-	ASSERT_ANY_THROW(sc.reduce_clem_connection(1, 100000));
-	ASSERT_ANY_THROW(sc.reduce_clem_connection(2, 2));
-	ASSERT_ANY_THROW(sc.reduce_clem_connection(1, 3));
-	ASSERT_ANY_THROW(sc.reduce_clem_connection(0, 0));
-	ASSERT_ANY_THROW(sc.reduce_clem_connection(156, 1));
+	EXPECT_THROW(sc.reduce_clem_connection(1, 100000), std::exception);
+	EXPECT_THROW(sc.reduce_clem_connection(2, 2), std::exception);
+	EXPECT_THROW(sc.reduce_clem_connection(1, 3), std::exception);
+	EXPECT_THROW(sc.reduce_clem_connection(0, 0), std::exception);
+	EXPECT_THROW(sc.reduce_clem_connection(156, 1), std::exception);
 }
