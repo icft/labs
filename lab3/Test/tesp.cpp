@@ -194,3 +194,46 @@ TEST(Scheme, TestReduceClem) {
 	EXPECT_THROW(sc.reduce_clem_connection(0, 0), std::exception);
 	EXPECT_THROW(sc.reduce_clem_connection(156, 1), std::exception);
 }
+
+TEST(Scheme, TestStream1) {
+	std::stringstream s;
+	struct clem d;
+	s << 23 << " " << 1 << " "<<  1 << " " << "1";
+	struct clem b[1];
+	b[0] = { 23, 1, 0, 'x' };
+	Scheme sc(b, 1);
+	s >> sc;
+	struct clem* arr = sc.get_arr();
+	ASSERT_EQ(arr[0].number, 23);
+	ASSERT_EQ(arr[0].type, 1);
+	ASSERT_EQ(arr[0].count, 1);
+	ASSERT_EQ(arr[0].signal, '1');
+	s.clear();
+	s << 23 << " " << 1 << " " << 4 << " " << "1";
+	s >> sc;
+	if (s.fail())
+		SUCCEED();
+	else
+		FAIL();
+	s.clear();
+	s << 23 << " " << 13 << " " << 4 << " " << "1";
+	s >> sc;
+	if (s.fail())
+		SUCCEED();
+	else
+		FAIL();
+	s.clear();
+	s << 23 << " " << 1 << " " << 4 << " " << "3";
+	s >> sc;
+	if (s.fail())
+		SUCCEED();
+	else
+		FAIL();
+	s.clear();
+	s << 23 << " " << 0 << " " << 2 << " " << "1";
+	s >> sc;
+	if (s.fail())
+		SUCCEED();
+	else
+		FAIL();
+}
