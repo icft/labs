@@ -9,8 +9,6 @@ struct list<T>::node {
 	~node();
 	node(node* _next_node, node* _prev_node);
 	node(T value, node* _next_node, node* _prev_node);
-	template<typename... Args>
-	node(Args&&...args, node* _next_node, node* _prev_node);
 };
 
 template<typename T>
