@@ -1,13 +1,12 @@
 #pragma once
 
 #include <ctime>
-#include <list>
 #include <string>
 #include "File.h"
 #include "List.h"
+#include "Node.h>
 
-class crypt_file
-{
+class crypt_file : public node {
 private:
 	std::unique_ptr<FILE> data;
 	tm create;
