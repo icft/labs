@@ -1,20 +1,41 @@
 #pragma once
 #include <memory>
-
-template<typename T>
-struct list_node {
-	T data;
-	std::unique_ptr<node> next;
-};
+#include <iterator>
 
 template<typename T>
 class list {
 private:
-	std::unique_ptr<list_node<T>> head;
-	std::unique_ptr<list_node<T>> tail;
+	struct node;
+	node* lbegin;
+	node* lend;
+	int size;
 public:
-	void add(std::unique_ptr<list_node<T>>);
-	void pop(std::unique_ptr<list_node<T>>);
-	std::unique_ptr<node<T>> find(std::string);
+	struct iterator;
+	typename list<T>::iterator begin();
+	typename list<T>::iterator end();
+	const typename list<T>::iterator cbegin();
+	const typename list<T>::iterator cend();
+	list();
+	~list();
+	list(const list&);
+	list(list&&);
+	list& operator= (const list&);
+	list& operator= (list&&);
+	bool is_empty();
+	int list_size();
+	T& front();
+	T& back();
+	void push_back(T);
+	void push_front(T);
+	void pop_back();
+	void pop(int);
+	void pop_front();
+	void insert(list<T>::iterator, T);
+	template<typename... Args>
+	void emplace_back(Args&&...);
+	template<typename... Args>
+	void emplace_front(Args&&...);
+	template<typename... Args>
+	void emplace(list<T>::iterator, Args&&...);
+	void clear();
 };
-
