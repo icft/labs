@@ -31,11 +31,5 @@ public:
 	void pop(int);
 	void pop_front();
 	void insert(list<T>::iterator, T);
-	template<typename... Args>
-	void emplace_back(Args&&...);
-	template<typename... Args>
-	void emplace_front(Args&&...);
-	template<typename... Args>
-	void emplace(list<T>::iterator, Args&&...);
 	void clear();
 };
