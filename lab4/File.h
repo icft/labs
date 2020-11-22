@@ -21,7 +21,7 @@ private:
 	tm create;
 	tm last_modify;
 	std::string owner;
-	std::list<std::pair<std::string, access>> rights;
+	Map<std::string, access> rights;
 	size_t size;
 public:
 	ffile();
