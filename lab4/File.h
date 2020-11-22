@@ -6,8 +6,8 @@
 #include <memory>
 #include "Node.h"
 #include "CryptFile.h"
-#include "List.h"
 #include "FileSystem.h"
+#include "Map.h"
 
 typedef struct access_rights {
 	bool can_read;
@@ -17,20 +17,22 @@ typedef struct access_rights {
 
 class ffile : public node { 
 private:
-	std::unique_ptr<FILE> file;
+	FILE* file;
 	tm create;
 	tm last_modify;
 	std::string owner;
-	list<std::pair<std::string, access>> rights;
+	std::list<std::pair<std::string, access>> rights;
 	size_t size;
 public:
+	ffile();
 	~ffile();
 	friend std::istream& operator>> (std::istream&, ffile&);
 	void edit();
 	friend std::ostream& operator<< (std::ostream&, const ffile&);
 	void operator+= (std::string);
-	void edit_access(int, user);
+	void edit_access(int, std::string);
 	crypt_file& encrypt();
 	void rename(std::string);
 };
+
 
