@@ -5,13 +5,13 @@
 #include "Node.h"
 #include "File.h"
 
-class dir : public node {
+class dir : public ffile {
 private:
 	std::list<std::pair<std::string, access>> rights;
 	size_t size;
 	std::list<node*> elems;
 public:
+	dir();
 	~dir();
 	friend std::ostream& operator>> (std::ostream&, const dir&);
-	void rename();
 };
