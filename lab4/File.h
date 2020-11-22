@@ -15,7 +15,7 @@ typedef struct access_rights {
 	bool can_execute;
 } access;
 
-class ffile : public node { 
+class ffile { 
 private:
 	FILE* file;
 	tm create;
