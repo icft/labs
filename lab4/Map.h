@@ -71,6 +71,7 @@ public:
 	private:
 		Node<K, V>* cur;
 	public:
+		ConstIterator(Node<K, M>* n) : cur(n) {}
 		ConstIterator(const ConstIterator& it) {
 			cur = new Node<K, V>;
 			cur->key = other.cur->key;
@@ -79,15 +80,6 @@ public:
 			cur->right = other.cur->right;
 			cur->parent = other.cur->parent;
 		}
-		ConstIterator(const Iterator& it) {
-			cur = new Node<K, V>;
-			cur->key = other.cur->key;
-			cur->value = other.cur->value;
-			cur->left = other.cur->left;
-			cur->right = other.cur->right;
-			cur->parent = other.cur->parent;
-		}
-		ConstIterator(Node<K, M>* n) : cur(n) {}
 		~ConstIterator() {
 			cur = nullptr;
 		}
