@@ -104,25 +104,25 @@ public:
 			return *this;
 		}
 		ConstIterator& operator++() {
-			if (_cur == nullptr) return *this;
+			if (cur == nullptr) return *this;
 			cur = tree->successor(cur->key);
 			return *this;
 		}
 		ConstIterator operator++(int) {
 			Map<K, M>::ConstIterator _this = *this;
-			if (_cur == nullptr) return _this;
+			if (cur == nullptr) return _this;
 			cur = tree->successor(cur->key);
 			return _this;
 		}
 		ConstIterator& operator--() {
-			if (_cur == nullptr) return *this;
+			if (cur == nullptr) return *this;
 			cur = tree->predecessor(cur->key);
 			return *this;
 		}
 		ConstIterator operator--(int) {
 			Map<K, M>::ConstIterator _this = *this;
-			if (_cur == nullptr) return _this;
-			cur = tree->successor(cur->key;
+			if (cur == nullptr) return _this;
+			cur = tree->successor(cur->key);
 			return _this;
 		}
 		bool operator!=(const ConstIterator& other) { return cur != other.cur; }
