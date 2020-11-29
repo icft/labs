@@ -1,59 +1,165 @@
 #pragma once
-#include <iterator>
-#include <vector>
-#include "BinaryTree.h"
+#include "Bst.h"
+#include <iostream>
 
 template<typename K, typename V>
 class Map {
 private:
-	int size = 0;
+	int size;
 	Bst<K, V>* tree;
 public:
 	class Iterator {
 	private:
-		Node<K, V>* ptr;
+		Node<K, V>* cur;
 	public:
-		Iterator() : ptr(nullptr) {}
-		Iterator(Node<K, V>* p) : ptr(p) {}
-		Iterator(const Iterator& it) = default;
-		Iterator(Iterator&& it) = default;
-		Iterator& operator =(const Iterator& it) = default;
-		Iterator& operator =(Iterator&& it) = default;
-		Iterator& operator ++() {
-			ptr = tree->successor(ptr->key);
+		Iterator(Node<K, V>* n) : cur(n) {}
+		Iterator(const Iterator& other) {
+			cur = new Node<K, V>;
+			cur->key = other.cur->key;
+			cur->value = other.cur->value;
+			cur->left = other.cur->left;
+			cur->right = other.cur->right;
+			cur->parent = other.cur->parent;
+		}
+		~Iterator() {
+			cur = nullptr;
+		}
+		Node<K, V>* get_cur() { return cur; }
+		Iterator& operator=(const Iterator& other) {
+			if (this != it) {
+				cur = new Node<K, V>;
+				cur->key = other.cur->key;
+				cur->value = other.cur->value;
+				cur->left = other.cur->left;
+				cur->right = other.cur->right;
+				cur->parent = other.cur->parent;
+			}
 			return *this;
 		}
-		Iterator& operator ++(int) {
-			Iterator tmp = *this;
-			ptr = tree->successor(ptr->key);
-			return tmp;
-		} 
-		Iterator& operator --() {
-			ptr = tree->successor(ptr->key);
+		Iterator& operator++() {
+			if (cur == nullptr) return *this;
+			cur = tree->successor(cur->key);
 			return *this;
 		}
-		Iterator& operator --(int) {
-			Iterator tmp = *this;
-			ptr = tree->successor(ptr->key);
-			return tmp;
+		Iterator operator++(int) {
+			Map<K, M>::Iterator _this = *this;
+			if (cur == nullptr) return _this;
+			cur = tree->successor(cur->key);
+			return _this;
 		}
-		bool operator!=(const Iterator& other) { return ptr != other.ptr; }
-		bool operator==(const Iterator& other) { return ptr == other.ptr; }
-		bool operator!=(const Node<K, V>* other) { return ptr != other; }
-		bool operator==(const Node<K, V>* other) { return ptr == other; }
+		Iterator& operator--() {
+			if (cur == nullptr) return *this;
+			cur = tree->predecessor(cur->key);
+			return *this;
+		}
+		Iterator operator--(int) {
+			Map<K, M>::Iterator _this = *this;
+			if (cur == nullptr) return _this;
+			cur = tree->predecessor(cur->key);
+			return _this;
+		}
+		bool operator!=(const Iterator& other) { return cur != other.cur; }
+		bool operator==(const Iterator& other) { return cur == other.cur; }
+		bool operator!=(const Node<K, V>* other) { return cur != other; }
+		bool operator==(const Node<K, V>* other) { return cur == other; }
 		operator bool() const { return ptr != nullptr; }
-		operator Node<K, V> *() const { return ptr; }
-		Node<K, V>* operator->() const { return ptr; }
-		Node<K, V>& operator*() const { return *ptr; }
- 	};
-	Map() : size(0), tree(nullptr) {}	
+		operator Node<K, V>* () const { return cur; }
+		Node<K, V>* operator->() const { return cur; }
+		Node<K, V>& operator*() const { return *cur; }
+	};
+	class ConstIterator {
+	private:
+		Node<K, V>* cur;
+	public:
+		ConstIterator(const ConstIterator& it) {
+			cur = new Node<K, V>;
+			cur->key = other.cur->key;
+			cur->value = other.cur->value;
+			cur->left = other.cur->left;
+			cur->right = other.cur->right;
+			cur->parent = other.cur->parent;
+		}
+		ConstIterator(const Iterator& it) {
+			cur = new Node<K, V>;
+			cur->key = other.cur->key;
+			cur->value = other.cur->value;
+			cur->left = other.cur->left;
+			cur->right = other.cur->right;
+			cur->parent = other.cur->parent;
+		}
+		ConstIterator(Node<K, M>* n) : cur(n) {}
+		~ConstIterator() {
+			cur = nullptr;
+		}
+		Node<K, M>* get_cur() const { return cur; }
+		ConstIterator& operator=(const ConstIterator& other) {
+			if (this != it) {
+				cur = new Node<K, V>;
+				cur->key = other.cur->key;
+				cur->value = other.cur->value;
+				cur->left = other.cur->left;
+				cur->right = other.cur->right;
+				cur->parent = other.cur->parent;
+			}
+			return *this;
+		}
+		ConstIterator& operator++() {
+			if (_cur == nullptr) return *this;
+			cur = tree->successor(cur->key);
+			return *this;
+		}
+		ConstIterator operator++(int) {
+			Map<K, M>::ConstIterator _this = *this;
+			if (_cur == nullptr) return _this;
+			cur = tree->successor(cur->key);
+			return _this;
+		}
+		ConstIterator& operator--() {
+			if (_cur == nullptr) return *this;
+			cur = tree->predecessor(cur->key);
+			return *this;
+		}
+		ConstIterator operator--(int) {
+			Map<K, M>::ConstIterator _this = *this;
+			if (_cur == nullptr) return _this;
+			cur = tree->successor(cur->key;
+			return _this;
+		}
+		bool operator!=(const ConstIterator& other) { return cur != other.cur; }
+		bool operator==(const ConstIterator& other) { return cur == other.cur; }
+		bool operator!=(const Node<K, V>* other) { return cur != other; }
+		bool operator==(const Node<K, V>* other) { return cur == other; }
+		operator bool() const { return ptr != nullptr; }
+		operator Node<K, V>* () const { return cur; }
+		Node<K, V>* operator->() const { return cur; }
+		Node<K, V>& operator*() const { return *cur; }
+	};
+	Map() : size(0), tree(nullptr) {}
 	~Map() { delete tree; }
-	Map(const Map& other);
+	Map(const Map& other) {
+		Copy(other.tree->root);
+		size = other.size;
+	}
+	void Copy(Node<K, V>* origin) {
+		if (origin == nullptr)
+			return;
+		std::pair<K, V> _pair;
+		_pair.first = origin->key;
+		_pair.second = origin->value;
+		tree->insert(_pair);
+		Copy(origin->left);
+		Copy(origin->right);
+	}
 	Map(Map&& other) : size(other.size), tree(other.tree) {
 		other.size = 0;
 		other.tree = nullptr;
 	}
-	Map& operator=(const Map& other);
+	Map& operator=(const Map& other) {
+		if (this != other) {
+			Copy(other.tree->root);
+			size = other.size;
+		}
+	}
 	Map& operator=(Map&& other) {
 		if (this != other) {
 			delete tree;
@@ -62,32 +168,35 @@ public:
 			other.size = 0;
 			other.tree = nullptr;
 		}
+		return *this;
 	}
+	bool empty() const { return (size == 0) ? true : false; }
+	int get_size() const { return size; }
+	void print() const { tree->print_inorder(); }
 	void add(std::pair<K, V> _pair) {
 		tree->insert(_pair);
 		size++;
 	}
-	void erase(K key) { tree->remove(key); }
-	void print() { tree->print_inorder(); }
-	bool empty() { return (size == 0) ? true : false; }
-	int size() { return size; }
-	Iterator begin() {
-		Node<K, V>* t = tree->minimum();
-		Iterator it(t);
-		return it;
+	void erase(K key) {
+		tree->remove(key);
+		size--;
 	}
-	Iterator end() {
-		Iterator it(nullptr);
-		return it;
-	}
+	Iterator begin() { return Iterator(tree->minimum()); }
+	Iterator end() { return Iterator(nullptr); }
+	ConstIterator cbegin() { return ConstIterator(tree->minimum()); }
+	ConstIterator cend() { return ConstIterator(nullptr); }
 	Iterator find(const K& key) {
 		Node<K, V>* t = tree->search(key);
 		if (t == nullptr)
 			return end();
-		else {
-			Iterator it(t);
-			return it;
-		}
+		else
+			return Iterator(t);
 	}
-	Iterator find(Iterator it);
+	ConstIterator find(const K& key) const {
+		Node<K, V>* t = tree->search(key);
+		if (t == nullptr)
+			return cend();
+		else
+			return ConstIterator(t);	
+	}
 };
