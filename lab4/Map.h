@@ -26,7 +26,7 @@ public:
 		}
 		Node<K, V>* get_cur() { return cur; }
 		Iterator& operator=(const Iterator& other) {
-			if (this != it) {
+			if (this != other) {
 				cur = new Node<K, V>;
 				cur->key = other.cur->key;
 				cur->value = other.cur->value;
@@ -72,7 +72,7 @@ public:
 		Node<K, V>* cur;
 	public:
 		ConstIterator(Node<K, M>* n) : cur(n) {}
-		ConstIterator(const ConstIterator& it) {
+		ConstIterator(const ConstIterator& other) {
 			cur = new Node<K, V>;
 			cur->key = other.cur->key;
 			cur->value = other.cur->value;
