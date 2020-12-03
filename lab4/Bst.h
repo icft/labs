@@ -30,13 +30,11 @@ private:
 			node->left = nullptr;
 			node->right = nullptr;
 			node->parent = nullptr;
-		}
-		else if (node->key < _pair.first) {
-			node->right = Insert(node->right, _pair);
+		} else if (node->key < _pair.first) {
+			node->right = Insert_help(node->right, _pair);
 			node->right->parent = node;
-		}
-		else {
-			node->left = Insert(node->left, _pair);
+		} else {
+			node->left = Insert_help(node->left, _pair);
 			node->left->parent = node;
 		}
 		return node;
@@ -127,7 +125,7 @@ private:
 		else if (node->Key < key)
 			node->Right = Remove_help(node->Right, key);
 		else
-			node->Left = Remove_helpnode->Left, key);
+			node->Left = Remove_help(node->Left, key);
 		return node;
 	}
 public:
