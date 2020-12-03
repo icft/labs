@@ -72,7 +72,7 @@ private:
 			return FindMin_help(node->right);
 		}
 		else {
-			Node<K, V>* parentNode = node->Parent;
+			Node<K, V>* parentNode = node->parent;
 			Node<K, V>* currentNode = node;
 			while ((parentNode != nullptr) && (currentNode == parentNode->right)) {
 				currentNode = parentNode;
@@ -100,13 +100,13 @@ private:
 		if (node == nullptr)
 			return nullptr;
 		if (node->key == key) {
-			if (node->Left == nullptr && node->Right == nullptr)
+			if (node->left == nullptr && node->right == nullptr)
 				node = nullptr;
-			else if (node->Left == nullptr && node->Right != nullptr) {
+			else if (node->left == nullptr && node->right != nullptr) {
 				node->right->parent = node->parent;
 				node = node->right;
 			}
-			else if (node->Left != NULL && node->Right == NULL) {
+			else if (node->left != NULL && node->right == NULL) {
 				node->left->parent = node->parent;
 				node = node->left;
 			}
