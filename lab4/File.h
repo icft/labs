@@ -9,7 +9,7 @@ typedef struct access_rights {
 	bool can_execute;
 } access;
 
-class Files {
+class File {
 public:
 	std::string name;
 	int offset;
@@ -21,8 +21,8 @@ public:
 	Map<std::string, int> size;
 
 
-	Files() = default;
-	~Files() = default;
+	File() = default;
+	~File() = default;
 	void create(std::string, std::string, std::string, std::string, int);
 	void edit(std::string, std::string);
 	std::string get_data(std::string);
