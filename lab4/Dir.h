@@ -1,17 +1,23 @@
 #pragma once
-
 #include <list>
 #include <string>
-#include "Node.h"
 #include "File.h"
 #include "Map.h"
-class dir : public ffile {
-private:
-	std::list<std::pair<std::string, access>> rights;
-	size_t size;
-	Map<std::string, ffile*> elems;
+#include <iostream>
+
+class Dir : public File {
 public:
-	dir();
-	~dir();
-	friend std::ostream& operator>> (std::ostream&, const dir&);
+	Map<std::string, File*> elems;
+
+	Dir() = default;
+	~Dir() = default;
+	void print() {
+		Map<std::string, File*>::ConstIterator it = elems.cbegin();
+		for (; it != elems.cend(); it++) {
+			if (data.empty())
+				std::cout << name << "--- dir\n";
+			else
+				std::cout << name << "--- file\n";
+		}
+	}
 };
