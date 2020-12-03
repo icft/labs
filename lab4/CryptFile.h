@@ -1,16 +1,14 @@
 #pragma once
-
-#include <ctime>
-#include <list>
-#include <string>
 #include "File.h"
+#include <iostream>
 
-class crypt_file: public ffile {
-private:
+class CryptFile : public File {
 public:
-	crypt_file();
-	~crypt_file();
-	ffile& decrypt();
+	CryptFile() = default;
+	~CryptFile() = default;
+	std::string decrypt(std::string);
+	std::string encrypt(std::string);
 };
+
 
 
