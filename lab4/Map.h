@@ -25,6 +25,8 @@ public:
 			cur = nullptr;
 		}
 		Node<K, V>* get_cur() { return cur; }
+		V get_value() const { return cur->value; }
+		void edit_value(V val) { cur->value = val; }
 		Iterator& operator=(const Iterator& other) {
 			if (this != other) {
 				cur = new Node<K, V>;
@@ -42,7 +44,7 @@ public:
 			return *this;
 		}
 		Iterator operator++(int) {
-			Map<K, M>::Iterator _this = *this;
+			Map<K, V>::Iterator _this = *this;
 			if (cur == nullptr) return _this;
 			cur = tree->successor(cur->key);
 			return _this;
@@ -53,7 +55,7 @@ public:
 			return *this;
 		}
 		Iterator operator--(int) {
-			Map<K, M>::Iterator _this = *this;
+			Map<K, V>::Iterator _this = *this;
 			if (cur == nullptr) return _this;
 			cur = tree->predecessor(cur->key);
 			return _this;
@@ -62,7 +64,7 @@ public:
 		bool operator==(const Iterator& other) { return cur == other.cur; }
 		bool operator!=(const Node<K, V>* other) { return cur != other; }
 		bool operator==(const Node<K, V>* other) { return cur == other; }
-		operator bool() const { return ptr != nullptr; }
+		operator bool() const { return cur != nullptr; }
 		operator Node<K, V>* () const { return cur; }
 		Node<K, V>* operator->() const { return cur; }
 		Node<K, V>& operator*() const { return *cur; }
@@ -71,7 +73,7 @@ public:
 	private:
 		Node<K, V>* cur;
 	public:
-		ConstIterator(Node<K, M>* n) : cur(n) {}
+		ConstIterator(Node<K, V>* n) : cur(n) {}
 		ConstIterator(const ConstIterator& other) {
 			cur = new Node<K, V>;
 			cur->key = other.cur->key;
@@ -83,9 +85,11 @@ public:
 		~ConstIterator() {
 			cur = nullptr;
 		}
-		Node<K, M>* get_cur() const { return cur; }
+		V get_value() const { return cur->value; }
+		Node<K, V>* get_cur() const { return cur; }
+		void edit_value(V val) { cur->value = val; }
 		ConstIterator& operator=(const ConstIterator& other) {
-			if (this != it) {
+			if (this != other) {
 				cur = new Node<K, V>;
 				cur->key = other.cur->key;
 				cur->value = other.cur->value;
@@ -101,7 +105,7 @@ public:
 			return *this;
 		}
 		ConstIterator operator++(int) {
-			Map<K, M>::ConstIterator _this = *this;
+			Map<K, V>::ConstIterator _this = *this;
 			if (cur == nullptr) return _this;
 			cur = tree->successor(cur->key);
 			return _this;
@@ -112,7 +116,7 @@ public:
 			return *this;
 		}
 		ConstIterator operator--(int) {
-			Map<K, M>::ConstIterator _this = *this;
+			Map<K, V>::ConstIterator _this = *this;
 			if (cur == nullptr) return _this;
 			cur = tree->successor(cur->key);
 			return _this;
@@ -121,7 +125,7 @@ public:
 		bool operator==(const ConstIterator& other) { return cur == other.cur; }
 		bool operator!=(const Node<K, V>* other) { return cur != other; }
 		bool operator==(const Node<K, V>* other) { return cur == other; }
-		operator bool() const { return ptr != nullptr; }
+		operator bool() const { return cur != nullptr; }
 		operator Node<K, V>* () const { return cur; }
 		Node<K, V>* operator->() const { return cur; }
 		Node<K, V>& operator*() const { return *cur; }
