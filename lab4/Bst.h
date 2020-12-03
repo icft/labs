@@ -11,11 +11,6 @@ public:
 	Node* left;
 	Node* right;
 	Node() : parent(nullptr), left(nullptr), right(nullptr) {}
-	~Node() {
-		delete parent;
-		delete left;
-		delete right;
-	}
 	Node(std::pair<K, V> _pair) : key(_pair.first), value(_pair.second), parent(nullptr), left(nullptr), right(nullptr) {}
 };
 
@@ -117,15 +112,15 @@ private:
 			}
 			else
 			{
-				int successorKey = Successor(key);
+				int successorKey = Successor_help(key)->key;
 				node->Key = successorKey;
-				node->Right = Remove_help(node->Right, successorKey);
+				node->right = Remove_help(node->right, successorKey);
 			}
 		}
 		else if (node->Key < key)
-			node->Right = Remove_help(node->Right, key);
+			node->right = Remove_help(node->right, key);
 		else
-			node->Left = Remove_help(node->Left, key);
+			node->left = Remove_help(node->left, key);
 		return node;
 	}
 public:
@@ -167,3 +162,5 @@ public:
 		root = Remove_help(root, key);
 	}
 };
+
+
