@@ -1,13 +1,7 @@
 #pragma once
-
-#include <ctime>
-#include <string>
-#include <list>
-#include <memory>
-#include "Node.h"
-#include "CryptFile.h"
-#include "FileSystem.h"
 #include "Map.h"
+#include <list>
+#include "CryptFile.h"
 
 typedef struct access_rights {
 	bool can_read;
@@ -15,24 +9,27 @@ typedef struct access_rights {
 	bool can_execute;
 } access;
 
-class ffile { 
-private:
-	FILE* file;
-	tm create;
-	tm last_modify;
+class Files {
+public:
+	std::string name;
+	int offset;
+	Map<std::string, std::string> data;
+	tm* create_time;
+	tm* last_modify;
 	std::string owner;
 	Map<std::string, access> rights;
-	size_t size;
-public:
-	ffile();
-	~ffile();
-	friend std::istream& operator>> (std::istream&, ffile&);
-	void edit();
-	friend std::ostream& operator<< (std::ostream&, const ffile&);
-	void operator+= (std::string);
-	void edit_access(int, std::string);
-	crypt_file& encrypt();
+	Map<std::string, int> size;
+
+
+	Files() = default;
+	~Files() = default;
+	void create(std::string, std::string, std::string, std::string, int);
+	void edit(std::string, std::string);
+	std::string get_data(std::string);
+	void add_access(std::string, access_rights);
+	void edit_access(std::string, access_rights);
 	void rename(std::string);
 };
+
 
 
