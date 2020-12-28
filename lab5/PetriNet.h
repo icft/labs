@@ -32,7 +32,7 @@ public:
 	PetriNet(const size_t pos, const size_t tr) : positions(pos, Position(tr)), transitions(tr, Transition(pos)), duration{} {}
 	constexpr auto get_time() const { return time; }
 	constexpr auto get_duration() const { return duration; }
-	void run(std::chrono::seconds, std::ofstream&);
+	void start(std::chrono::seconds, std::ofstream&);
 	void add_mar(const size_t pos_ind, const size_t num) {
 		positions.at(pos_ind).add(num);
 		for (size_t i{}; i < num; ++i)
