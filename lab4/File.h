@@ -79,4 +79,12 @@ public:
     /*!Вывод основной информации*/
     friend std::ostream& operator<<(std::ostream&, const File&);
     //    std::string get_sizes_for_print() const;
+    /*!
+    Сохранение в файл ФС
+    */
+    void save_to_file(FILE* f);
+    /*!
+    Чтение из файла ФС
+    */
+    static File* read_dir_from_file(FILE* f);
 };
