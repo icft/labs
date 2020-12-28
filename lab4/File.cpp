@@ -79,5 +79,109 @@ std::ostream& operator<<(std::ostream& s, const File& f) {
     return s;
 }
 
+void File::save_to_file(FILE* f) {
+    // save isdir
+    fwrite(&this_is_dir, sizeof(this_is_dir), 1, f);
+    // save filename
+    uint16_t size = filename.size();
+    fwrite(&size, sizeof(size), 1, f);
+    fwrite(filename.c_str(), size, 1, f);
+    // save create_time
+    time_t t = mktime(create_time);
+    fwrite(&t, sizeof(t), 1, f);
+    // save last_modify
+    t = mktime(last_modify);
+    fwrite(&t, sizeof(t), 1, f);
+    // save owner
+    size = owner.size();
+    fwrite(&size, sizeof(size), 1, f);
+    fwrite(owner.c_str(), size, 1, f);
+    // save user_rights
+    // save count users
+    size = user_rights.size();
+    fwrite(&size, sizeof(size), 1, f);
+    // save each user rights
+    for (auto it = user_rights.begin(); it != user_rights.end(); it++) {
+        // save username
+        size = it->first.size();
+        fwrite(&size, sizeof(size), 1, f);
+        fwrite(it->first.c_str(), size, 1, f);
+        //save access
+        fwrite(&(it->second), sizeof(it->second), 1, f);
+    }
+    // save streams
+    size = data.size();
+    fwrite(&size, sizeof(size), 1, f);
+    // save each stream
+    for (auto it = data.begin(); it != data.end(); it++) {
+        // save stream name
+        auto stream_name = it->first;
+        size = stream_name.size();
+        fwrite(&size, sizeof(size), 1, f);
+        fwrite(stream_name.c_str(), size, 1, f);
+        //save data len
+        fwrite(&(sz[stream_name]), sizeof(sz[stream_name]), 1, f);
+        //save data
+        fwrite(it->second, sz[stream_name], 1, f);
+    }
+}
 
-
+File* File::read_dir_from_file(FILE* f) {
+    // assuming, that type already have been readed
+// load filename
+    uint16_t size;
+    fread(&size, sizeof(size), 1, f);
+    char* filename = new char[size + 1];
+    fread(filename, size, 1, f);
+    filename[size] = 0;
+    // load create_time
+    time_t t_cr, t_lm;
+    fread(&t_cr, sizeof(t_cr), 1, f);
+    // load last_modify
+    fread(&t_lm, sizeof(t_lm), 1, f);
+    // load owner
+    fread(&size, sizeof(size), 1, f);
+    char* owner = new char[size + 1];
+    fread(owner, size, 1, f);
+    owner[size] = 0;
+    File* file = new File();
+    file->filename = filename;
+    file->owner = owner;
+    delete[] filename;
+    delete[] owner;
+    file->create_time = localtime(&t_cr);
+    file->last_modify = localtime(&t_lm);
+    // load user_rights
+    // load count users
+    uint16_t user_count;
+    fread(&user_count, sizeof(user_count), 1, f);
+    for (int i = 0; i < user_count; i++) {
+        fread(&size, sizeof(size), 1, f);
+        char* username = new char[size + 1];
+        fread(username, size, 1, f);
+        username[size] = 0;
+        access ac;
+        fread(&ac, sizeof(ac), 1, f);
+        file->user_rights[username] = ac;
+        delete[] username;
+    }
+    // load streams -- zero streams for dir
+    uint16_t records_count;
+    fread(&records_count, sizeof(records_count), 1, f);
+    for (int i = 0; i < records_count; i++) {
+        //load stream name
+        fread(&size, sizeof(size), 1, f);
+        char* stream_name = new char[size + 1];
+        fread(stream_name, size, 1, f);
+        stream_name[size] = 0;
+        //load stream size
+        fread(&size, sizeof(size), 1, f);
+        //load data
+        char* data = new char[size];
+        fread(data, size, 1, f);
+        file->data[stream_name] = data;
+        file->sz[stream_name] = size;
+        delete[]  stream_name;
+    }
+    return file;
+}
