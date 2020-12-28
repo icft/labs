@@ -136,7 +136,6 @@ bool FileSystem::add_info(std::string name, std::string stream, char* content, i
 bool FileSystem::edit(std::string name, std::string stream, char* content, int content_size, std::string own) {
     //    std::cout << "FileSystem::add_info: BEGIN" << std::endl;
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
-    // for every dir in _pair.first check exists and access_rights!
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
     Dir* d = find_dir(dirs, own);
@@ -176,17 +175,14 @@ bool FileSystem::copy_file(std::string name_file, std::string to_dir, std::strin
         if (d->elems.count(filename)) {
             File* f = d->elems[filename];
             if (f->user_rights[own].can_read && d_to->user_rights[own].can_write) {
-                //create new file
                 File* nf = new File();
                 nf->filename = newfilename;
                 nf->create_time = f->create_time;
                 nf->owner = own;
-                //copy user_rights
                 for (auto ur = f->user_rights.cbegin(); ur != f->user_rights.cend(); ur++) {
                     nf->user_rights[ur->first] = ur->second;
                 }
                 for (auto s = f->data.cbegin(); s != f->data.cend(); s++) {
-                    //copy data and sizes of streams
                     nf->data[s->first] = s->second;
                     nf->sz[s->first] = f->sz[s->first];
                 }
@@ -208,7 +204,6 @@ bool FileSystem::copy_file(std::string name_file, std::string to_dir, std::strin
 
 void FileSystem::print_file_info(std::string name, std::string owner) {
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
-    // for every dir in _pair.first check exists and access_rights!
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
     Dir* d = root;
@@ -243,7 +238,6 @@ void FileSystem::print_file_info(std::string name, std::string owner) {
 
 void FileSystem::print_access_rights(std::string name) {
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
-    // for every dir in _pair.first check exists and access_rights!
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
     Dir* d = find_dir(dirs, "admin");
@@ -266,7 +260,6 @@ void FileSystem::print_access_rights(std::string name) {
 
 bool FileSystem::edit_access_rights(std::string name, std::string user, access_rights ac, std::string own) {
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
-    // for every dir in _pair.first check exists and access_rights!
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
     Dir* d = find_dir(dirs, user);
@@ -285,14 +278,12 @@ bool FileSystem::edit_access_rights(std::string name, std::string user, access_r
 void FileSystem::create_user(std::string user, std::string password, std::string own) {
     if (own != "admin")
         throw std::runtime_error("Access denied");
-    //��������, ��� ������ ������������ ���
     if (table.count(user)) {
         throw std::runtime_error("User already exists");
     }
     users s;
     //	s.username = user;
     s.password = password;
-    //�������� ��������� �����
     srand(time(0));
     for (int i = 0; i < 32; i++)
         s.key[i] = rand();
@@ -322,12 +313,10 @@ void FileSystem::print_fs_recurs(Dir* d, int level, bool verbose = false) {
     std::string indent;
     for (auto i = 0; i < level; i++) indent += "  ";
     for (auto it = d->elems.begin(); it != d->elems.end(); it++) {
-        // print files and dirs names
         auto f = it->second;
         std::cout << indent << f->filename << "\t\towner(" << f->owner << ")\t" << f->sz.size() << " streams" << std::endl;
         if (verbose)
             std::cout << *f << std::endl;
-        //if dir, then print it recursevly
         if (f->is_dir()) {
             Dir* d2 = dynamic_cast<Dir*>(f);
             print_fs_recurs(d2, level + 1);
@@ -473,17 +462,13 @@ bool FileSystem::copy_dir(std::string dirname, std::string to_dirname, std::stri
     str_dir_to += dirname_to;
     if (d != nullptr && d_to != nullptr && d->user_rights[own].can_write) {
         if (d->elems.count(dirname_from)) {
-            // get dir_from as file
             File* f = d->elems[dirname_from];
-            //check user rights
             if (f->is_dir() && f->user_rights[own].can_read && d_to->user_rights[own].can_write) {
                 Dir* df = dynamic_cast<Dir*>(f);
                 if (df == nullptr)
                     return false;
-                // create new dir
                 Dir* dn = new Dir(dirname_to, own);
                 d_to->elems[dirname_to] = dn;
-                // copy all files and dirs
                 for (auto cf = df->elems.begin(); cf != df->elems.end(); cf++) {
                     //                    Dir * dcf = dynamic_cast<Dir *>(cf->second);
                     //                    // if file is dir then copy dir
@@ -591,18 +576,6 @@ bool FileSystem::rename(std::string name_file, std::string to_name, std::string 
     return true;
 }
 
-//struct fs_data{
-//    int user_count;
-
-//};
-//struct fs_dir_data{
-//    int count_records;
-//};
-#include <stdio.h>
-//#include <sys/stat.h>
-//#include <fcntl.h>
-//#include <unistd.h>
-
 void FileSystem::save_fs_state(std::string filename) {
     std::cout << "FileSystem::save_fs_state " << filename << std::endl;
     //    std::ofstream f(filename, std::ios_base::out|std::ios::binary|std::ios::trunc);
@@ -618,7 +591,6 @@ void FileSystem::save_fs_state(std::string filename) {
     //    f.close();
     //    int f = open(filename.c_str(), O_WRONLY|O_TRUNC|O_CREAT);
     FILE* f = fopen(filename.c_str(), "wb");
-    // save user_table
     uint16_t tab_size = table.size();
     //    write(f, &tab_size, sizeof(tab_size));
     fwrite(&tab_size, sizeof(tab_size), 1, f);
@@ -634,7 +606,6 @@ void FileSystem::save_fs_state(std::string filename) {
         fwrite(password, size, 1, f);
         fwrite(it->second.key, sizeof(it->second.key), 1, f);
     }
-    //save root_dir
     root->save_to_file(f);
     fclose(f);
 }
@@ -646,7 +617,6 @@ void FileSystem::load_fs_state(std::string filename) {
     std::cout << "FileSystem::load_fs_state " << filename << std::endl;
     //    int f = open(filename.c_str(), O_RDONLY);
     FILE* f = fopen(filename.c_str(), "rb");
-    // read user_table;
     uint16_t tab_size;
     fread(&tab_size, sizeof(tab_size), 1, f);
     for (int i = 0; i < tab_size; i++) {
@@ -667,7 +637,6 @@ void FileSystem::load_fs_state(std::string filename) {
         delete[] username;
         delete[] password;
     }
-    // read root dir
     //    root = new Dir("/","admin");
     bool f_type;
     fread(&f_type, sizeof(f_type), 1, f);
