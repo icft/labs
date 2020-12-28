@@ -14,38 +14,35 @@ private:
 	std::vector<Marker> markers;
 	std::vector<Position> positions;
 	std::vector<Transition> transitions;
-	std::vector<int> queue;
+	std::vector<size_t> queue;
 	std::mutex markers_lock;
 	std::mutex queue_lock;
 	std::atomic_bool all_blocked;
 	std::chrono::time_point<std::chrono::system_clock> time;
 	std::chrono::milliseconds duration;
-	void generate_marker_duration(Marker& marker);
-	void generate_markers_duration();
-	void print_condition();
-	std::vector<int> get_ready_input_markers(const int transitionIdx);
-	void delete_markers(std::vector<int>& m, std::ofstream& ofstr);
-	void move_markers(const int transitionIdx, std::ofstream& ofstr);
-	void update_markers();
-	void update_transitions(std::ofstream& ofstr);
-	void perform_transitions(std::ofstream& ofstr);
+	void generate_mar_dur(Marker&);
+	void generate_mar_dur();
+	std::vector<size_t> get_ready_inp_mar(const size_t);
+	void delete_mar(std::vector<size_t>&, std::ofstream&);
+	void move_mar(const size_t, std::ofstream&);
+	void update_mar();
+	void update_tr(std::ofstream&);
+	void perform_tr(std::ofstream&);
 public:
-	PetriNet(int positions, int transitions) :
-		positions(positions, Position(transitions)),
-		transitions(transitions, Transition(positions)),
-		duration{}
-	{}
-	auto get_time() const { return time; }
-	auto get_duration() const { return duration; }
-	void run(std::chrono::seconds duration, std::ofstream& f);
-	void add_markers(const int positionIdx, const int num) {
-		positions.at(positionIdx).add_markers(num);
-		for (int i = 0; i < num; ++i)
-			markers.emplace_back(positionIdx);
+	PetriNet(const size_t pos, const size_t tr) : positions(pos, Position(tr)), transitions(tr, Transition(pos)), duration{} {}
+	constexpr auto get_time() const { return time; }
+	constexpr auto get_duration() const { return duration; }
+	void run(std::chrono::seconds, std::ofstream&);
+	void add_mar(const size_t pos_ind, const size_t num) {
+		positions.at(pos_ind).add(num);
+		for (size_t i{}; i < num; ++i)
+			markers.emplace_back(pos_ind);
 	}
-	void add_pt_edge(const int positionIdx, const int transitionIdx, const int num) {
-		positions.at(positionIdx).update_transition(transitionIdx, num);
-		transitions.at(transitionIdx).update_input(positionIdx, num);
+	void add_pt(const size_t pos_ind, const size_t tr_ind, const size_t num) {
+		positions.at(pos_ind).update(tr_ind, num);
+		transitions.at(tr_ind).update_inp(pos_ind, num);
 	}
-	void add_tp_edge(const int transitionIdx, const int positionIdx, const int num) { transitions.at(transitionIdx).update_output(positionIdx, num); }
+	void add_tp(const size_t tr_ind, const size_t pos_ind, const size_t num) { 
+		transitions.at(tr_ind).update_out(pos_ind, num); 
+	}
 };
