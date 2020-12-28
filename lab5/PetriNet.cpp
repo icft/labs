@@ -167,7 +167,7 @@ void PetriNet::perform_tr(std::ofstream& f) {
 	}
 }
 
-void PetriNet::run(std::chrono::seconds dur, std::ofstream& f) {
+void PetriNet::start(std::chrono::seconds dur, std::ofstream& f) {
 	generate_mar_dur();
 	time = time_now();
 	duration = dur;
