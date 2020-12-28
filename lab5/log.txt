@@ -1,9 +1,0 @@
-Time: 385ms; Marker index: 1; jump 0 -> 1 throw this transition: 0
-Time: 405ms; Marker index: 1; jump 1 -> 4 throw this transition: 3
-Time: 546ms; Marker index: 0; jump 0 -> 2 throw this transition: 1
-Time: 969ms; Marker index: 1; jump 4 -> 2 throw this transition: 5
-Time: 1454ms; Marker index: 0; jump 2 -> 4 throw this transition: 3
-Time: 1911ms; Marker index: 1; jump 2 -> 4 throw this transition: 4
-Time: 2449ms; Marker index: 0; jump 4 -> 2 throw this transition: 5
-Time: 2532ms; Marker index: 0; jump 2 -> 4 throw this transition: 3
-Time: 2542ms; Marker index: 1; -
