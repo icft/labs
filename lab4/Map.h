@@ -1,7 +1,11 @@
+#pragma once
 #include <stdexcept>
 #include <utility>
 #include <iostream>
 
+/*!
+       \brief Шаблонный класс структуры данных: ассоциативный массив
+*/
 template <typename K, typename V>
 class Map {
 private:
@@ -10,7 +14,7 @@ private:
         Node* parent;
         Node* left;
         Node* right;
-        int balance; 
+        int balance;
         Node() : data(nullptr), parent(nullptr), left(nullptr), right(nullptr), balance(0) {}
     };
     Node* root;
@@ -27,6 +31,10 @@ public:
         ConstIterator& operator++() {
             if (node == nullptr)
                 throw std::out_of_range("++");
+            if (node == tree->find_maximum(node)) {
+                node = nullptr;
+                return *this;
+            }
             node = tree->next_node(node);
             return *this;
         }
@@ -36,8 +44,6 @@ public:
             return tmp;
         }
         ConstIterator& operator--() {
-            if (*this == tree->begin())
-                throw std::out_of_range("--");
             if (node == nullptr) {
                 node = tree->find_maximum(tree->root);
                 return *this;
@@ -117,7 +123,7 @@ public:
     ~Map() {
         remove_all(root);
         Size = 0;
-    } 
+    }
     Map& operator=(const Map& other) {
         if (this == &other) return *this;
         remove_all(root);
@@ -138,6 +144,15 @@ public:
     }
     bool is_empty() const {
         return !Size;
+    }
+    int size() const {
+        return Size;
+    }
+    const V& operator[](const K& key) const {
+        const Node* current = find_node(key);
+        if (current == nullptr)
+            throw std::out_of_range("fail");
+        return current->data->second;
     }
     V& operator[](const K& key) {
         Node* temp = new Node;
@@ -175,9 +190,9 @@ public:
             Size++;
             return temp->data->second;
         }
-        if (p->left == temp) 
+        if (p->left == temp)
             p->balance = 1;
-        else  
+        else
             p->balance = -1;
         Node* p_parent = p->parent;
         bool unbalanced = false;
@@ -188,7 +203,7 @@ public:
             }
             if (p_parent->left == p)
                 p_parent->balance = 1;
-            else 
+            else
                 p_parent->balance = -1;
             p = p_parent;
             p_parent = p_parent->parent;
@@ -202,7 +217,7 @@ public:
                     LL(p_parent);
             }
             else {
-                if (p_parent->left == p) 
+                if (p_parent->left == p)
                     p_parent->balance = 0;
                 else if (p->balance == 1)
                     RL(p_parent);
@@ -213,18 +228,6 @@ public:
         Size++;
         return temp->data->second;
     }
-    const V& valueOf(const K& key) const {
-        const Node* current = find_node(key);
-        if (current == nullptr)
-            throw std::out_of_range("const_valueOf");
-        return current->data->second;
-    } 
-    V& valueOf(const K& key) {
-        Node* current = find_node(key);
-        if (current == nullptr)
-            throw std::out_of_range("valueOf");
-        return current->data->second;
-    } 
     ConstIterator find(const K& key) const {
         ConstIterator it(find_node(key), this);
         return it;
@@ -234,6 +237,7 @@ public:
         return it;
     }
     void remove(const K& key) {
+        Size--;
         Node* tmp = find_node(key);
         if (tmp == nullptr)
             throw std::out_of_range("remove");
@@ -242,6 +246,7 @@ public:
         delete tmp;
     }
     void remove(const ConstIterator& it) {
+        Size--;
         Node* tmp = it.node;
         if (tmp == nullptr)
             throw std::out_of_range("remove");
@@ -253,10 +258,10 @@ public:
         return Size;
     }
     bool operator==(const Map& other) const {
-        if (Size != other.Size) 
+        if (Size != other.Size)
             return false;
         for (auto it = begin(), ito = other.begin(); it != end(), ito != end(); ++it, ++ito)
-            if (*it != *ito) 
+            if (*it != *ito)
                 return false;
         return true;
     }
@@ -279,15 +284,9 @@ public:
         ConstIterator it(nullptr, this);
         return it;
     }
-    ConstIterator begin() const {
-        return cbegin();
-    } 
-    ConstIterator end() const {
-        return cend();
-    }
 private:
     void remove_all(Node* A) {
-        if (A == nullptr) 
+        if (A == nullptr)
             return;
         else {
             remove_all(A->left);
@@ -311,11 +310,11 @@ private:
             else p->right = B;
         }
         else root = B;
-        if (B->balance == -1) 
+        if (B->balance == -1)
             A->balance = B->balance = 0;
-        else { 
-            A->balance = -1; 
-            B->balance = 1; 
+        else {
+            A->balance = -1;
+            B->balance = 1;
         }
     }
     void LL(Node* A) {
@@ -332,11 +331,11 @@ private:
             else p->right = B;
         }
         else root = B;
-        if (B->balance == 1) 
+        if (B->balance == 1)
             A->balance = B->balance = 0;
-        else { 
-            A->balance = 1; 
-            B->balance = -1; 
+        else {
+            A->balance = 1;
+            B->balance = -1;
         }
     }
     void RL(Node* A) {
@@ -344,10 +343,10 @@ private:
         Node* C = B->left;
         Node* p = A->parent;
         B->left = C->right;
-        if (B->left) 
+        if (B->left)
             B->left->parent = B;
         A->right = C->left;
-        if (A->right) 
+        if (A->right)
             A->right->parent = A;
         C->left = A;
         C->right = B;
@@ -357,15 +356,15 @@ private:
             if (p->left == A) p->left = C;
             else p->right = C;
         }
-        else 
+        else
             root = C;
-        if (C->balance == -1) 
+        if (C->balance == -1)
             A->balance = 1;
-        else 
+        else
             A->balance = 0;
-        if (C->balance == 1) 
+        if (C->balance == 1)
             B->balance = -1;
-        else 
+        else
             B->balance = 0;
         C->balance = 0;
     }
@@ -374,10 +373,10 @@ private:
         Node* C = B->right;
         Node* p = A->parent;
         B->right = C->left;
-        if (B->right) 
+        if (B->right)
             B->right->parent = B;
         A->left = C->right;
-        if (A->left) 
+        if (A->left)
             A->left->parent = A;
         C->left = B;
         C->right = A;
@@ -387,15 +386,15 @@ private:
             if (p->left == A) p->left = C;
             else p->right = C;
         }
-        else 
+        else
             root = C;
-        if (C->balance == -1) 
+        if (C->balance == -1)
             B->balance = 1;
-        else 
+        else
             B->balance = 0;
-        if (C->balance == 1) 
+        if (C->balance == 1)
             A->balance = -1;
-        else 
+        else
             A->balance = 0;
         C->balance = 0;
     }
@@ -414,7 +413,7 @@ private:
                 node = node->left;
         return node;
     }
-    Node* find_maximum(Node* node) const{
+    Node* find_maximum(Node* node) const {
         if (node != nullptr)
         {
             while (node->right != nullptr)
@@ -430,14 +429,14 @@ private:
             A = A->left;
             while (A->right != nullptr) A = A->right;
         }
-        else
+        else {
             do
             {
                 B = A;
                 A = A->parent;
             } while (A && A->right != B);
-
-            return A;
+        }
+        return A;
     }
     Node* next_node(Node* A) const {
         Node* B;
@@ -452,11 +451,10 @@ private:
         return B;
     }
     Node* remove_node(Node* A) {
-        Size--;
         Node* tmp;
         Node* B;
         Node* C;
-        bool x; 
+        bool x;
         if (A->left && A->right) {
             B = remove_node(prev_node(A));
             x = false;
@@ -476,17 +474,17 @@ private:
         if (B) {
             B->parent = A->parent;
             B->left = A->left;
-            if (B->left) 
+            if (B->left)
                 B->left->parent = B;
             B->right = A->right;
-            if (B->right) 
+            if (B->right)
                 B->right->parent = B;
             B->balance = A->balance;
         }
         if (A->parent) {
-            if (A->parent->left == A) 
+            if (A->parent->left == A)
                 A->parent->left = B;
-            else 
+            else
                 A->parent->right = B;
         }
         else root = B;
@@ -506,21 +504,21 @@ private:
                         B = B->parent;
                     }
                     else {
-                        if (B->left == C) 
+                        if (B->left == C)
                             tmp = B->right;
-                        else 
+                        else
                             tmp = B->left;
                         if (!tmp->balance) {
-                            if (B->balance == 1) 
+                            if (B->balance == 1)
                                 LL(B);
                             else
                                 RR(B);
                             break;
                         }
                         else if (B->balance == tmp->balance) {
-                            if (B->balance == 1) 
+                            if (B->balance == 1)
                                 LL(B);
-                            else 
+                            else
                                 RR(B);
                             C = tmp;
                             B = tmp->parent;
@@ -528,7 +526,7 @@ private:
                         else {
                             if (B->balance == 1)
                                 LR(B);
-                            else 
+                            else
                                 RL(B);
                             C = B->parent;
                             B = C->parent;
