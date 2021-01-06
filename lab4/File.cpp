@@ -1,5 +1,5 @@
 #include "File.h"
-#include <ctime>
+//#include <ctime>
 //#include <exception>
 //#include <stdexcept>
 //#include <list>
@@ -7,7 +7,7 @@
 //#include <sstream>
 
 
-bool File::create(std::string nm, std::string stream, char* content, int content_size, std::string own) {
+bool File::create(std::string nm, std::string stream, const char* content, int content_size, std::string own) {
     filename = nm;
     time_t now = time(0);
     this->create_time = localtime(&now);
@@ -37,11 +37,13 @@ void File::edit(std::string stream, char* content, int content_size, std::string
     if (it == data.end())
         throw std::runtime_error("Stream doesn't exist");
     //    it.edit_value(content);
-    if (user_rights.count(user) == 1) {
+    if (user_rights.count(user) == 1 && user_rights[user].can_write) {
+        char* old = it->second;
         it->second = new char[content_size];
         memcpy(it->second, content, content_size);
+        delete[] old;
+        sz[stream] = content_size;
     }
-    sz[stream] = content_size;
 }
 
 char* File::get_data(std::string stream, std::string user, int* out_len) {
@@ -160,7 +162,7 @@ File* File::read_dir_from_file(FILE* f) {
         char* username = new char[size + 1];
         fread(username, size, 1, f);
         username[size] = 0;
-        access ac;
+        access_rights ac;
         fread(&ac, sizeof(ac), 1, f);
         file->user_rights[username] = ac;
         delete[] username;
