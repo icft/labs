@@ -6,43 +6,51 @@
 
 std::pair<std::vector<std::string>, std::string> FileSystem::parser(std::string name) {
     char sep = '/';
+    if (name.find(sep) == name.npos) {
+        return std::make_pair(std::vector<std::string>(), name);
+    }
     std::vector<std::string> v;
     for (size_t a = 0, b = 0; a != name.npos; a = b)
         v.push_back(name.substr(a + (a != 0), (b = name.find(sep, a + 1)) - a - (a != 0)));
     std::string fname;
     fname = v[v.size() - 1];
     v.pop_back();
-    return std::make_pair(v, fname);;
+    return std::make_pair(v, fname);
 }
+
 Dir* FileSystem::find_dir(std::vector<std::string> dirs, std::string own) {
     Dir* d = root;
     if (dirs.size() == 0)
         return root;
+    if (dirs.at(0) == "/")
+        dirs.erase(dirs.begin());
     if ((dirs.size() == 1) && (dirs.at(0) == ""))
         return root;
     //    std::cout << "Checking dirs: ";
     for (unsigned i = 0; i < dirs.size(); i++) {
         std::string cur_dir_name = dirs.at(i);
         //        std::cout << cur_dir_name << ", ";
+        //        d->m_elems.lock();
         auto d2 = d->elems.find(cur_dir_name);
         if (d2 == d->elems.end()) { // no such dir
-            std::cout << "ERROR: dir '" << cur_dir_name << "' doesn't exists." << std::endl;
+//            std::cout << "ERROR: dir '" << cur_dir_name << "' doesn't exists." << std::endl;
             return nullptr;
         }
         else {
             if (!d->user_rights[own].can_execute_or_move) {
-                std::cout << "ERROR: dir '" << cur_dir_name << "' user '" << own << "'doesn't have rights on it." << std::endl;
+                //                std::cout << "ERROR: dir '" << cur_dir_name << "' user '"<< own << "'doesn't have rights on it." << std::endl;
                 return nullptr;
             }
             //            std::cout << d2->second << std::endl;
             d = static_cast<Dir*>(d2->second);
         }
+        //        d->m_elems.unlock();
     }
     return d;
 }
 
 
-bool FileSystem::create_file(std::string name, std::string stream, char* content, int content_size, std::string own) {
+bool FileSystem::create_file(std::string name, std::string stream, const char* content, int content_size, std::string own) {
     //    std::cout << "FileSystem::create_file: BEGIN" << std::endl;
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
     // for every dir in _pair.first check exists and access_rights!
@@ -50,7 +58,7 @@ bool FileSystem::create_file(std::string name, std::string stream, char* content
     std::string& filename = _pair.second;
     //    std::cout << "Filename: " << filename << std::endl;
     auto d = find_dir(dirs, own);
-    if (d == nullptr)
+    if (d == nullptr || d->elems.count(name) != 0)
         return false;
     // TODO: add file
     File* f = new File();
@@ -105,37 +113,14 @@ bool FileSystem::add_info(std::string name, std::string stream, char* content, i
         f->add_stream_to_file(stream, content, content_size);
     else
         return false;
-    //    f->create(filename, stream, content, own);
-    //    std::cout << "FileSystem::add_info: END" << std::endl;
     return true;
-    // std::pair<std::vector<std::string>, std::string> _pair = parser(name);
-    //     Dir* fl = HELP(_pair, 0, own);
-    //     if (fl == nullptr)
-    //             root[_pair.second]->add(s, stream);
-    //     else
-    //             fl->elems[_pair.second]->add(s, stream);
 }
 
-//void FileSystem::print(std::string name, std::string stream, std::string own) {
-//	std::pair<std::vector<std::string>, std::string> _pair = parser(name);
-////	Dir* fl = HELP(_pair, 0, own);
-////	if (fl == nullptr) {
-////		if (root[_pair.second]->can_read(own))
-////			std::cout << root[_pair.second]->get_data(stream);
-////		else
-////            throw std::runtime_error("Access denied");
-////	}
-////	else {
-////		if (fl->elems[_pair.second]->can_read(own))
-////			std::cout << fl->elems[_pair.second]->get_data(stream);
-////		else
-////            throw std::runtime_error("Access denied");
-////	}
-//}
 
 bool FileSystem::edit(std::string name, std::string stream, char* content, int content_size, std::string own) {
     //    std::cout << "FileSystem::add_info: BEGIN" << std::endl;
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
+    // for every dir in _pair.first check exists and access_rights!
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
     Dir* d = find_dir(dirs, own);
@@ -143,26 +128,12 @@ bool FileSystem::edit(std::string name, std::string stream, char* content, int c
         return false;
     File* f = d->elems.find(filename)->second;
     f->edit(stream, content, content_size, own);
-    //    std::cout << "FileSystem::add_info: END" << std::endl;
     return true;
-    //	Dir* fl = HELP(_pair, 0, own);
-    //	if (fl == nullptr) {
-    //		if (root[_pair.second]->can_write(own))
-    //			root[_pair.second]->edit(stream, s);
-    //		else
-    //            throw std::runtime_error("Access denied");
-    //	}
-    //	else {
-    //		if (fl->elems[_pair.second]->can_write(own))
-    //			fl->elems[_pair.second]->edit(stream, s);
-    //		else
-    //            throw std::runtime_error("Access denied");
-    //	}
 }
 
 
 bool FileSystem::copy_file(std::string name_file, std::string to_dir, std::string own) {
-    std::cout << "FileSystem::copy_file " << name_file << " to dir " << to_dir << " by user " << own << std::endl;
+    //    std::cout<< "FileSystem::copy_file "<< name_file << " to dir "<< to_dir << " by user " << own <<std::endl;
     std::pair<std::vector<std::string>, std::string> _pair = parser(name_file);
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
@@ -171,23 +142,34 @@ bool FileSystem::copy_file(std::string name_file, std::string to_dir, std::strin
     std::string& newfilename = _pair2.second;
     Dir* d = find_dir(dirs, own);
     Dir* d_to = find_dir(dirs_to, own);
+    //    if (d != nullptr && d_to != nullptr){
+    //        std::lock_guard<std::recursive_mutex> lk(d->m_elems);
+    //        std::lock_guard<std::recursive_mutex> lk2(d_to->m_elems);
+    //    }
     if (d != nullptr && d_to != nullptr && d->user_rights[own].can_write) {
         if (d->elems.count(filename)) {
+            d->m_elems.lock();
             File* f = d->elems[filename];
+            d->m_elems.unlock();
             if (f->user_rights[own].can_read && d_to->user_rights[own].can_write) {
+                //create new file
                 File* nf = new File();
                 nf->filename = newfilename;
                 nf->create_time = f->create_time;
                 nf->owner = own;
+                //copy user_rights
                 for (auto ur = f->user_rights.cbegin(); ur != f->user_rights.cend(); ur++) {
                     nf->user_rights[ur->first] = ur->second;
                 }
                 for (auto s = f->data.cbegin(); s != f->data.cend(); s++) {
+                    //copy data and sizes of streams
                     nf->data[s->first] = s->second;
                     nf->sz[s->first] = f->sz[s->first];
                 }
                 nf->update_last_time();
+                d_to->m_elems.lock();
                 d_to->elems[newfilename] = nf;
+                d_to->m_elems.unlock();
             }
             else
                 return false;
@@ -204,6 +186,7 @@ bool FileSystem::copy_file(std::string name_file, std::string to_dir, std::strin
 
 void FileSystem::print_file_info(std::string name, std::string owner) {
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
+    // for every dir in _pair.first check exists and access_rights!
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
     Dir* d = root;
@@ -229,7 +212,7 @@ void FileSystem::print_file_info(std::string name, std::string owner) {
     //    std::cout << std::endl;
     File* f = d->elems.find(filename)->second;
     //    std::cout << f;
-    std::cout << "File '" << f->filename << "', owner '" << f->owner << "', cr.time: " << f->create_time << ", mod.time: " << f->last_modify << ", streams: " << std::endl;
+    std::cout << "File '" << f->filename << "', owner '" << f->owner << "', cr.time: " << mktime(f->create_time) << ", mod.time: " << mktime(f->last_modify) << ", streams: " << std::endl;
     for (auto it = f->sz.cbegin(); it != f->sz.cend(); it++) {
         //        std::cout << "  " << it->first << " -> " << it->second << " bytes" << std::endl;
         std::cout << "  Content of '" << it->first << "' (" << std::dec << it->second << " bytes):\t" << f->data[it->first] << std::endl;
@@ -238,6 +221,7 @@ void FileSystem::print_file_info(std::string name, std::string owner) {
 
 void FileSystem::print_access_rights(std::string name) {
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
+    // for every dir in _pair.first check exists and access_rights!
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
     Dir* d = find_dir(dirs, "admin");
@@ -260,6 +244,7 @@ void FileSystem::print_access_rights(std::string name) {
 
 bool FileSystem::edit_access_rights(std::string name, std::string user, access_rights ac, std::string own) {
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
+    // for every dir in _pair.first check exists and access_rights!
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
     Dir* d = find_dir(dirs, user);
@@ -278,45 +263,53 @@ bool FileSystem::edit_access_rights(std::string name, std::string user, access_r
 void FileSystem::create_user(std::string user, std::string password, std::string own) {
     if (own != "admin")
         throw std::runtime_error("Access denied");
+    //проверка, что такого пользователя нет
     if (table.count(user)) {
         throw std::runtime_error("User already exists");
     }
     users s;
     //	s.username = user;
     s.password = password;
+    //добавить генерацию ключа
     srand(time(0));
     for (int i = 0; i < 32; i++)
         s.key[i] = rand();
     table[user] = s;
+    m_root.lock();
     root->user_rights[user] = { true, true, true };
+    m_root.unlock();
     //	table.push_back(s);
-    std::cout << "FileSystem::create_user : user table size=" << table.size() << ", added '" << user << "'" << std::endl;
+    //    std::cout << "FileSystem::create_user : user table size=" << table.size() << ", added '" << user << "'" << std::endl;
 }
 
 void FileSystem::edit_users_password(std::string name, std::string password) {
     if (table.count(name) != 1)
         throw std::runtime_error("User doesn't exist, or too many users with this name");
     table[name].password = password;
-    std::cout << "FileSystem::edit_users_password : user table size=" << table.size() << ", updated '" << name <<
-        "', current password=" << table[name].password << std::endl;
+    //    std::cout << "FileSystem::edit_users_password : user table size=" << table.size() << ", updated '" << name <<
+    //                 "', current password="<< table[name].password << std::endl;
 }
 
 void FileSystem::delete_user(std::string name, std::string own) {
     if (own != "admin")
         throw std::runtime_error("Access denied");
     table.erase(name);
+    m_root.lock();
     root->user_rights.erase(name);
-    std::cout << "FileSystem::delete_user : user table size=" << table.size() << ", deleted '" << name << "'" << std::endl;
+    m_root.unlock();
+    //    std::cout << "FileSystem::delete_user : user table size=" << table.size() << ", deleted '" << name << "'" << std::endl;
 }
 
 void FileSystem::print_fs_recurs(Dir* d, int level, bool verbose = false) {
     std::string indent;
     for (auto i = 0; i < level; i++) indent += "  ";
     for (auto it = d->elems.begin(); it != d->elems.end(); it++) {
+        // print files and dirs names
         auto f = it->second;
-        std::cout << indent << f->filename << "\t\towner(" << f->owner << ")\t" << f->sz.size() << " streams" << std::endl;
+        std::cout << indent << f->filename << "\t" << ((f->is_dir()) ? "<dir>" : "<file>") << "\towner(" << f->owner << ")\t" << f->sz.size() << " streams" << std::endl;
         if (verbose)
             std::cout << *f << std::endl;
+        //if dir, then print it recursevly
         if (f->is_dir()) {
             Dir* d2 = dynamic_cast<Dir*>(f);
             print_fs_recurs(d2, level + 1);
@@ -327,29 +320,21 @@ void FileSystem::print_fs_recurs(Dir* d, int level, bool verbose = false) {
 }
 
 void FileSystem::print_fs(bool verbose = false) {
-    std::cout << "FileSystem::print_fs" << std::endl;
+    //    std::cout << "FileSystem::print_fs" << std::endl;
     print_fs_recurs(root, 0, verbose);
-    //	std::map<std::string, File*>::iterator it = root.begin();
-    //	for (; it != root.end(); it++) {
-    //		std::cout << it->first;
-    //		Dir* dr = dynamic_cast<Dir*>(it->second);
-    //		if (dr->is_dir()) {
-    //			print_help(dr, "  ");
-    //		}
-    //	}
 }
 
 void FileSystem::ls(std::string path) {
+    std::lock_guard<std::mutex> lk(m_root);
     std::cout << "FileSystem::ls " << path << std::endl;
     auto dirs_p = parser(path);
     auto dirs = dirs_p.first;
     auto dir = dirs_p.second;
     if (dir.size()) dirs.push_back(dir);
+    //    m_root.lock();
     Dir* d = root;
-    //    std::cout << dirs.size();
     for (unsigned i = 0; i < dirs.size(); i++) {
         std::string cur_dir_name = dirs.at(i);
-        //        std::cout << cur_dir_name << ", ";
         auto d2 = d->elems.find(cur_dir_name);
         if (d2 == d->elems.end()) { // no such dir
             std::cout << "ERROR: dir '" << cur_dir_name << "' doesn't exists." << std::endl;
@@ -359,46 +344,48 @@ void FileSystem::ls(std::string path) {
             d = static_cast<Dir*>(d2->second);
         }
     }
-    //    std::cout << "Dir '/" << d->filename << "' contains:" <<std::endl;
     std::cout << "Dir '/" << path << "' contains:" << std::endl;
     for (auto it = d->elems.cbegin(); it != d->elems.cend(); it++) {
         std::cout << it->first << "\t" << (it->second->is_dir() ? "<dir>" : "<file>") << "\t" << it->second->sz.size() << " streams" << std::endl;
-        //        Dir *d = dynamic_cast<Dir *>(it->second);
-        //        if (d == nullptr)
-        //            std::cout << it->first << "\t" << "<file>" << "\t" << it->second->sz.size() << " streams" << std::endl;
-        //        else
-        //            std::cout << it->first << "\t" << "<dir>" << "\t" << it->second->sz.size() << " streams" << std::endl;
     }
     std::cout << std::endl;
+    //    m_root.unlock();
 }
 
 
-//void FileSystem::print_help(Dir* d, std::string s) {
-//	std::map<std::string, File*>::iterator it = d->elems.begin();
-//	for (; it != d->elems.end(); it++) {
-//		std::cout << s + it->first << "\n";
-//		Dir* dr = dynamic_cast<Dir*>(it->second);
-//		if (dr->is_dir()) {
-//			print_help(dr, s + "  ");
-//		}
-//	}
-//}
-
 bool FileSystem::create_dir(std::string name, std::string own) {
+    //    std::lock_guard<std::mutex> lkr(m_root);
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
     //    std::cout<< "FileSystem::create_dir "<< name << " for owner " << own <<std::endl;
     std::vector<std::string>& dirs = _pair.first;
     std::string& dirname = _pair.second;
     Dir* d = find_dir(dirs, own);
-    if (d != nullptr) {
+    //    if (d != nullptr)
+    //        std::lock_guard<std::recursive_mutex> lk(d->m_elems);
+    if (d != nullptr && d->elems.count(name) == 0) {
         Dir* new_dir = new Dir(dirname, own);
-        //        new_dir->create(dirname);
-        d->elems[name] = static_cast<File*>(new_dir);
+        d->m_elems.lock();
+        d->elems[dirname] = static_cast<File*>(new_dir);
+        d->m_elems.unlock();
     }
     else {
         return false;
     }
     return true;
+}
+
+bool FileSystem::is_dir(std::string name, std::string own) {
+    std::pair<std::vector<std::string>, std::string> _pair = parser(name);
+    // for every dir in _pair.first check exists and access_rights!
+    std::vector<std::string>& dirs = _pair.first;
+    std::string& filename = _pair.second;
+    //    std::cout << "Filename: " << filename << std::endl;
+    auto d = find_dir(dirs, own);
+    if (d != nullptr && d->elems.count(name) != 0) {
+        auto f = d->elems[filename];
+        return f->is_dir();
+    }
+    return false;
 }
 
 std::vector<std::string> FileSystem::read_dir(std::string name, std::string own) {
@@ -444,42 +431,53 @@ char* FileSystem::read_crypted_file(std::string name, std::string stream_name, s
 }
 
 bool FileSystem::copy_dir(std::string dirname, std::string to_dirname, std::string own) {
-    std::cout << "FileSystem::copy_file " << dirname << " to dir " << to_dirname << " by user " << own << std::endl;
+    //    std::cout<< "FileSystem::copy_file "<< dirname << " to dir "<< to_dirname << " by user " << own <<std::endl;
     std::pair<std::vector<std::string>, std::string> _pair = parser(dirname);
     std::vector<std::string>& dirs = _pair.first;
     std::string& dirname_from = _pair.second;
     std::pair<std::vector<std::string>, std::string> _pair2 = parser(to_dirname);
     std::vector<std::string>& dirs_to = _pair2.first;
     std::string& dirname_to = _pair2.second;
+    if (dirname == to_dirname)
+        return false;
     Dir* d = find_dir(dirs, own);
     Dir* d_to = find_dir(dirs_to, own);
-    std::string str_dir_from, str_dir_to;
-    for (auto it = dirs.begin(); it != dirs.end(); it++)
-        str_dir_from += it->data();
-    str_dir_from += dirname_from;
-    for (auto it = dirs_to.begin(); it != dirs_to.end(); it++)
-        str_dir_to += it->data();
-    str_dir_to += dirname_to;
+    //    std::string str_dir_from, str_dir_to;
+    //    for (auto it=dirs.begin(); it != dirs.end(); it++)
+    //         str_dir_from += it->data() + "/";
+    //    str_dir_from += dirname_from;
+    //    for (auto it=dirs_to.begin(); it != dirs_to.end(); it++)
+    //         str_dir_to += it->data() + "/";
+    //    str_dir_to += dirname_to;
+    //    if (d != nullptr && d_to != nullptr){
+    //        std::lock_guard<std::recursive_mutex> lk(d->m_elems);
+    //        std::lock_guard<std::recursive_mutex> lk2(d_to->m_elems);
+    //    }
     if (d != nullptr && d_to != nullptr && d->user_rights[own].can_write) {
         if (d->elems.count(dirname_from)) {
+            // get dir_from as file
             File* f = d->elems[dirname_from];
+            //check user rights
             if (f->is_dir() && f->user_rights[own].can_read && d_to->user_rights[own].can_write) {
                 Dir* df = dynamic_cast<Dir*>(f);
                 if (df == nullptr)
                     return false;
+                // create new dir
                 Dir* dn = new Dir(dirname_to, own);
+                d->m_elems.lock();
                 d_to->elems[dirname_to] = dn;
+                d->m_elems.unlock();
+                // copy all files and dirs
                 for (auto cf = df->elems.begin(); cf != df->elems.end(); cf++) {
-                    //                    Dir * dcf = dynamic_cast<Dir *>(cf->second);
                     //                    // if file is dir then copy dir
-                    //                    if (dcf){
-                    //
                     if (cf->second->is_dir()) {
-                        if (!copy_dir(str_dir_from + "/" + cf->first, str_dir_to + "/" + cf->first, own))
+                        //                        if (!copy_dir(str_dir_from+"/"+cf->first, str_dir_to+"/"+cf->first, own))
+                        if (!copy_dir(dirname + "/" + cf->first, to_dirname + "/" + cf->first, own))
                             return false;
                     }
                     else { // else copy file
-                        if (!copy_file(str_dir_from + "/" + cf->first, str_dir_to + "/" + cf->first, own))
+//                            if (!copy_file(str_dir_from+"/"+cf->first, str_dir_to+"/"+cf->first, own))
+                        if (!copy_file(dirname + "/" + cf->first, to_dirname + "/" + cf->first, own))
                             return false;
                     }
 
@@ -496,8 +494,25 @@ bool FileSystem::copy_dir(std::string dirname, std::string to_dirname, std::stri
         return false;
 }
 
+bool FileSystem::copy(std::string name, std::string path_to, std::string own) {
+    auto pair = parser(name);
+    auto fn = pair.second;
+    if (name == path_to) {
+        return false;
+    }
+    //    m_root.lock();
+    if (is_dir(name, own)) {
+        return this->copy_dir(name, path_to + "/" + fn, own);
+    }
+    else {
+        return this->copy_file(name, path_to + "/" + fn, own);
+    }
+    //    m_root.unlock();
+}
+
+
 bool FileSystem::move(std::string name_file, std::string to_dir, std::string own) {
-    std::cout << "FileSystem::move " << name_file << " to dir " << to_dir << " by user " << own << std::endl;
+    //    std::cout<< "FileSystem::move "<< name_file << " to dir "<< to_dir << " by user " << own <<std::endl;
     std::pair<std::vector<std::string>, std::string> _pair = parser(name_file);
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
@@ -507,12 +522,18 @@ bool FileSystem::move(std::string name_file, std::string to_dir, std::string own
     std::string& dirname = _pair2.second;
     dirs_to.push_back(dirname);
     Dir* d_to = find_dir(dirs_to, own);
+    //    if (d != nullptr && d_to != nullptr){
+    //        std::lock_guard<std::recursive_mutex> lk(d->m_elems);
+    //        std::lock_guard<std::recursive_mutex> lk2(d_to->m_elems);
+    //    }
     if (d != nullptr && d_to != nullptr && d->user_rights[own].can_write) {
         if (d->elems.count(filename)) {
             File* f = d->elems[filename];
             if (f->user_rights[own].can_execute_or_move) {
+                d->m_elems.lock();
                 d->elems.erase(filename);
                 d_to->elems[filename] = f;
+                d->m_elems.unlock();
             }
             else
                 return false;
@@ -526,49 +547,74 @@ bool FileSystem::move(std::string name_file, std::string to_dir, std::string own
 }
 
 void FileSystem::del_recurs(Dir* d) {
+    //    std::lock_guard<std::recursive_mutex> lk(d->m_elems);
     if (d != nullptr) {
         for (auto it = d->elems.begin(); it != d->elems.end(); it++) {
             auto filename = it->first;
-            File* f = d->elems[filename];
-            d->elems.erase(filename);
+            //            File *f = d->elems[filename];
+            File* f = it->second;
             if (f->is_dir()) {
                 Dir* d2 = dynamic_cast<Dir*>(f);
                 del_recurs(d2);
             }
+            for (auto i2 = f->data.begin(); i2 != f->data.end(); i2++) {
+                delete i2->second;
+            }
+            delete f;
         }
+        d->m_elems.lock();
+        //        d->elems.erase(filename);
+        d->elems.clear();
+        d->m_elems.unlock();
     }
 }
 
 bool FileSystem::del(std::string name, std::string own) {
     std::vector<std::string> out;
+    //    std::cout<< "FileSystem::del_dir "<< name << " for owner " << own <<std::endl;
     std::pair<std::vector<std::string>, std::string> _pair = parser(name);
-    std::cout << "FileSystem::del_dir " << name << " for owner " << own << std::endl;
+    //    std::cout << 1;
     std::vector<std::string>& dirs = _pair.first;
+    //    std::cout << 2;
     std::string& filename = _pair.second;
+    //    std::cout << 3;
     Dir* d = find_dir(dirs, own);
+    //    std::cout << 4;
+    //    if (d != nullptr)
+    //        std::lock_guard<std::recursive_mutex> lk(d->m_elems);
     if (d != nullptr && d->elems.count(filename) && d->elems[filename]->user_rights[own].can_execute_or_move) {
+        //        std::cout << 5;
         File* f = d->elems[filename];
-        d->elems.erase(filename);
+        //        std::cout << 6;
         if (f->is_dir()) {
             Dir* d2 = dynamic_cast<Dir*>(f);
             del_recurs(d2);
         }
+        d->m_elems.lock();
+        d->elems.erase(filename);
+        d->m_elems.unlock();
+        delete f;
+        //        std::cout << 7;
     }
+    else
+        return false;
     return true;
 }
 
 
 bool FileSystem::rename(std::string name_file, std::string to_name, std::string own) {
     std::pair<std::vector<std::string>, std::string> _pair = parser(name_file);
-    std::cout << "FileSystem::rename '" << name_file << "' to '" << to_name << "' for owner " << own << std::endl;
+    //    std::cout<< "FileSystem::rename '"<< name_file << "' to '"<< to_name << "' for owner " << own <<std::endl;
     std::vector<std::string>& dirs = _pair.first;
     std::string& filename = _pair.second;
     Dir* d = find_dir(dirs, own);
     if (d != nullptr && d->elems.count(filename) && d->elems[filename]->user_rights[own].can_execute_or_move) {
         File* f = d->elems[filename];
+        d->m_elems.lock();
         d->elems.erase(filename);
         f->filename = to_name;
         d->elems[to_name] = f;
+        d->m_elems.unlock();
     }
     else {
         return false;
@@ -576,21 +622,12 @@ bool FileSystem::rename(std::string name_file, std::string to_name, std::string 
     return true;
 }
 
+#include <stdio.h>
+
 void FileSystem::save_fs_state(std::string filename) {
-    std::cout << "FileSystem::save_fs_state " << filename << std::endl;
-    //    std::ofstream f(filename, std::ios_base::out|std::ios::binary|std::ios::trunc);
-    //    f << "FSdata" << std::endl;
-    //    f << table.size(); // save user count;
-    //    for (auto it=table.begin(); it != table.end(); it++){
-    //        f << it->first << std::endl;
-    //        f << it->second.password << std::endl;
-    //        for (int i=0;i<32;i++)
-    //            f << (uint8_t)it->second.key[i];
-    //        f << std::endl;
-    //    }
-    //    f.close();
-    //    int f = open(filename.c_str(), O_WRONLY|O_TRUNC|O_CREAT);
+    //    std::cout<< "FileSystem::save_fs_state "<< filename <<std::endl;
     FILE* f = fopen(filename.c_str(), "wb");
+    // save user_table
     uint16_t tab_size = table.size();
     //    write(f, &tab_size, sizeof(tab_size));
     fwrite(&tab_size, sizeof(tab_size), 1, f);
@@ -606,17 +643,22 @@ void FileSystem::save_fs_state(std::string filename) {
         fwrite(password, size, 1, f);
         fwrite(it->second.key, sizeof(it->second.key), 1, f);
     }
+    //save root_dir
+    m_root.lock();
     root->save_to_file(f);
+    m_root.unlock();    
     fclose(f);
 }
 
 
 void FileSystem::load_fs_state(std::string filename) {
+    m_root.lock();
     table.clear();
     delete root;
-    std::cout << "FileSystem::load_fs_state " << filename << std::endl;
+    //    std::cout<< "FileSystem::load_fs_state "<< filename <<std::endl;
     //    int f = open(filename.c_str(), O_RDONLY);
     FILE* f = fopen(filename.c_str(), "rb");
+    // read user_table;
     uint16_t tab_size;
     fread(&tab_size, sizeof(tab_size), 1, f);
     for (int i = 0; i < tab_size; i++) {
@@ -637,6 +679,7 @@ void FileSystem::load_fs_state(std::string filename) {
         delete[] username;
         delete[] password;
     }
+    // read root dir
     //    root = new Dir("/","admin");
     bool f_type;
     fread(&f_type, sizeof(f_type), 1, f);
@@ -648,27 +691,5 @@ void FileSystem::load_fs_state(std::string filename) {
         //        File *d = File::read_dir_from_file(f);
     }
     fclose(f);
-    //    std::ifstream f(filename, std::ios_base::in|std::ios::binary);
-    //    std::string var;
-    ////    f << "FSdata" << std::endl;
-    //    f >> var;
-    //    std::cout << var << std::endl;
-    //    int table_size;
-    //    f >> table_size; // save user count;
-    //    std::cout << table_size << std::endl;
-    //    for(int i=0; i< table_size; i++){
-    //        std::string username;
-    //        users user_data;
-    //        f >> username;
-    //        f >> user_data.password;
-    //        for (int i=0;i<32;i++)
-    //            f >> user_data.key[i];
-    //        std::cout << username << " pass:" << user_data.password << std::endl;
-    ////                     user_data.key;
-    ////    for (auto it=table.begin(); it != table.end(); it++){
-    ////        f << it->first << std::endl;
-    ////        f << it->second.password << std::endl;
-    ////        f << it->second.key << std::endl;
-    //    }
-    //    f.close();
+    m_root.unlock();
 }
