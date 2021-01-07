@@ -52,9 +52,12 @@ public:
             return *this;
         }
         ConstIterator operator--(int) {
-            ConstIterator tmp = *this;
-            operator--();
-            return tmp;
+            if (node == nullptr) {
+                node = tree->find_maximum(tree->root);
+                return *this;
+            }
+            node = tree->prev_node(node);
+            return *this;
         }
         std::pair<const K, V>& get() const {
             std::pair<const K, V>* value;
@@ -101,9 +104,8 @@ public:
             return *this;
         }
         Iterator operator--(int) {
-            auto result = *this;
             ConstIterator::operator--();
-            return result;
+            return *this;
         }
         std::pair<const K, V>* operator->() const {
             return &this->operator*();
@@ -538,3 +540,5 @@ private:
         return A;
     }
 };
+
+
